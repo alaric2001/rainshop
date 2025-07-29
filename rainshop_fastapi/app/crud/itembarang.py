@@ -19,6 +19,33 @@ model = ResNet50(weights="imagenet", include_top=False, pooling="avg")
 # Pastikan folder img ada
 os.makedirs("img", exist_ok=True)
 
+def image_to_base64(image_path: str) -> str:
+    # 1. Buka gambar
+    with Image.open(image_path) as img:
+        # 2. Konversi ke mode RGB (untuk JPG)
+        if img.mode != 'RGB':
+            img = img.convert('RGB')
+        
+        # 3. Simpan ke buffer bytes
+        buffer = io.BytesIO()
+        img.save(buffer, format="JPEG", quality=95)
+        
+        # 4. Encode ke base64
+        img_bytes = buffer.getvalue()
+        base64_str = base64.b64encode(img_bytes).decode('utf-8')
+    
+    return f"data:image/jpeg;base64,{base64_str}"
+
+def add_image_attribute(obj, imgBase64, max_images=3):
+    for i in range(1, max_images + 1):
+        attr_name = f'image{i}'
+        if not hasattr(obj, attr_name) or getattr(obj, attr_name) is None:
+            setattr(obj, attr_name, imgBase64)
+            break  # Hentikan loop setelah berhasil ditambahkan
+            
+
+
+
 def create_item(db: Session, item: schemas.itembarang.ItemBarangCreate):
  try:    
     # 1. Decode base64 image
@@ -111,13 +138,18 @@ def search_items(db: Session, image: str):
         D, I = index.search(vector, k=3)
         similar_items = []
         for idx in I[0]:
-            # getitem = db.query(models.VwItemBarang).filter(models.VwItemBarang.faiss_index == index).first()
             getitem = db.query(models.VwItemBarang).filter(models.VwItemBarang.faiss_index == idx).first()
             if getitem:
-                if not any(item.item_id == getitem.item_id for item in similar_items):
+                base64_data = image_to_base64(getitem.image_path)
+                matching_items = [item for item in similar_items if item.item_id == getitem.item_id]
+                # if not any(item.item_id == getitem.item_id for item in similar_items):
+                if matching_items:
+                    item_to_update = matching_items[0]  # Ambil item pertama yang cocok
+                    add_image_attribute(item_to_update,base64_data)
+                else: 
+                    add_image_attribute(getitem,base64_data)
                     similar_items.append(getitem)
 
-        # json_output = json.dumps([schemas.vw_itembarang.VwItemBarangOut.from_orm(item).dict() for item in similar_items], indent=2)
         return similar_items
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error Search Vector Image: {str(e)}")
