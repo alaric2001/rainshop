@@ -12,7 +12,7 @@ app = FastAPI()
 # Izinkan CORS untuk semua origin (*) atau spesifik ke Vue.js
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8080"],  # Ganti dengan origin Vue.js
+    allow_origins=["*"],  # Ganti dengan origin Vue.js
     allow_credentials=True,
     allow_methods=["*"],  # Izinkan semua method (GET, POST, dll.)
     allow_headers=["*"],  # Izinkan semua header

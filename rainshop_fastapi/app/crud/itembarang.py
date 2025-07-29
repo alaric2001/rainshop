@@ -50,13 +50,26 @@ def create_item(db: Session, item: schemas.itembarang.ItemBarangCreate):
     vector = np.array([vector]).astype('float32')  # bentuknya jadi (1, 2048)
 
     # Buat index Faiss (FlatL2 = jarak Euclidean biasa)
-    index = faiss.IndexFlatL2(vector.shape[1])  # 2048 dimensi
 
-    # Tambahkan ke index
+    # index = faiss.IndexFlatL2(vector.shape[1])  # 2048 dimensi
+
+    # # Tambahkan ke index
+    # index.add(vector)
+
+    # # Simpan index ke file kalau mau dipakai nanti
+    
+    # Cek apakah file index Faiss sudah ada
+    index_path = "index_barang.bin"
+
+    if os.path.exists(index_path):
+        index = faiss.read_index(index_path)
+    else:
+        index = faiss.IndexFlatL2(vector.shape[1])  # 2048 dimensi
+
+    # Tambah vector baru
     index.add(vector)
+    faiss.write_index(index, index_path) # Simpan kembali index ke file
 
-    # Simpan index ke file kalau mau dipakai nanti
-    faiss.write_index(index, "index_barang.bin")
     
     db_item = models.ItemBarang(**item.dict(exclude={"image"}))
     db.add(db_item)
@@ -95,10 +108,11 @@ def search_items(db: Session, image: str):
         index = faiss.read_index("index_barang.bin")
 
         # Cari 5 terdekat
-        D, I = index.search(vector, k=5)
+        D, I = index.search(vector, k=3)
         similar_items = []
         for idx in I[0]:
-            getitem = db.query(models.VwItemBarang).filter(models.VwItemBarang.faiss_index == index).first()
+            # getitem = db.query(models.VwItemBarang).filter(models.VwItemBarang.faiss_index == index).first()
+            getitem = db.query(models.VwItemBarang).filter(models.VwItemBarang.faiss_index == idx).first()
             if getitem:
                 if not any(item.item_id == getitem.item_id for item in similar_items):
                     similar_items.append(getitem)

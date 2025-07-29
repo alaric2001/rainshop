@@ -1,0 +1,191 @@
+.btn-touch {
+    height: 75px;
+    width: 90px;
+    margin: 5px;
+    padding: 5px;
+    display: inline-block;
+    border-radius: 5px;
+    color: white;
+    position: relative;
+    cursor: pointer;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    text-decoration: none;
+    overflow: hidden;
+}
+    
+.small-text {
+    font-size: 12px!important;
+}
+
+.btn-normal {
+    height: 45px;
+    min-width: 115px;
+    width: auto;
+    margin-left: 0;
+    border-radius: 5px;
+    position: relative;
+    cursor: pointer;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    text-decoration: none;
+    overflow: hidden;
+    color: white;
+}
+
+.btn-animation {
+    cursor: pointer;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    text-decoration: none;
+    color: white;
+}
+
+.btn-touch span.tableno {
+    display: inline-block;
+    position: relative;
+    transition: 0.5s;
+}
+
+.btn-touch span.tableno:after {
+    content: '\00bb';
+    position: absolute;
+    opacity: 0;
+    top: 0;
+    right: -20px;
+    transition: 0.5s;
+}
+
+.btn-touch:hover span.tableno {
+    padding-right: 25px;
+}
+
+.btn-touch:hover span.tableno:after {
+    opacity: 1;
+    right: 0;
+}
+
+.btn-normal:after, .btn-animation:after, .btn-touch:after {
+    content: "";
+    background: rgba(255, 255, 255, 0.7);
+    display: block;
+    position: absolute;
+    padding-top: 300%;
+    padding-left: 350%;
+    margin-left: -20px!important;
+    margin-top: -120%;
+    opacity: 0;
+    transition: all 0.8s
+}
+
+.btn-animation:active:after, .btn-normal:active:after, .btn-touch:active:after {
+    padding: 0;
+    margin: 0;
+    opacity: 1;
+    transition: 0s
+}
+
+.jumlahorder {
+    position: relative;
+    display: block;
+    bottom: 0;
+    font-size: 10px;
+}
+.tableno {
+    font-size: 12px!important;
+}
+
+.tab-backdrop {
+    background: #2f353a;
+    border-radius: 5px;
+    min-height: 400px;
+}
+
+.empty {
+    background: transparent;
+    border: 1px solid rgba(10, 243, 80, 0.7);
+}
+
+.alert {
+    background: rgba(255, 45, 80, 0.9);
+    border: 1px solid rgb(255, 0, 43);
+}
+
+.alert:hover {
+    color: white!important;
+    background: rgba(255, 45, 80, 0.9)!important;
+    border: 1px solid rgb(255, 0, 43)!important;
+}
+
+
+.btn-bg-red {
+    color: white;
+    background: rgba(255, 45, 80, 0.9);
+    border: 1px solid rgb(255, 0, 43);
+}
+.btn-bg-red:hover {
+    color: white!important;
+    background: rgba(255, 45, 80, 0.9)!important;
+    border: 1px solid rgb(255, 0, 43)!important;
+}
+.btn-bg-green {
+    color: white;
+    background: rgb(1, 73, 22);
+    border: 1px solid rgb(0, 255, 76);
+}
+.btn-bg-green:hover {
+    color: white!important;
+    background: rgb(1, 73, 22)!important;
+    border: 1px solid rgb(0, 255, 76)!important;
+}
+
+.btn-bg-yellow {
+    background: rgba(219, 135, 8, 0.9);
+    border: 1px solid rgb(238, 255, 0);
+}
+.btn-bg-yellow:hover {
+    color: white!important;
+    background: rgba(219, 135, 8, 0.9)!important;
+    border: 1px solid rgb(238, 255, 0)!important;
+}
+
+.warning {
+    background: rgba(247, 168, 49, 0.9);
+    border: 1px solid rgb(255, 196, 0);
+}
+.warning:hover {
+    color: white!important;
+    background: rgba(247, 168, 49, 0.9)!important;
+    border: 1px solid rgb(255, 196, 0)!important;
+}
+
+.safe {
+    background: rgba(19, 122, 50, 0.9);
+    border: 1px solid rgb(0, 255, 76);
+}
+.safe:hover {
+    color: white!important;
+    background: rgba(19, 122, 50, 0.9)!important;
+    border: 1px solid rgb(0, 255, 76)!important;
+}
+.primary {
+    background: rgba(19, 67, 122, 0.9);
+    border: 1px solid rgb(0, 162, 255);
+}
+.primary:hover {
+    color: white!important;
+    background: rgba(19, 67, 122, 0.9)!important;
+    border: 1px solid rgb(0, 162, 255)!important;
+}
+.no-border {
+    border: none;
+}
+
+.text-clickable {
+    font-size: 12px;
+    color: rgb(0, 119, 255)
+}
+
+button.btn-normal > i {
+    margin-right: 10px;
+}
