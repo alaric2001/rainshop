@@ -1,11 +1,22 @@
-# rainshop_api
 
-pip install fastapi uvicorn
+# Repo ini terdiri atas dua project atau dua aplikasi
+### 1. Project Server API dg nama rainshop_fastapi dalam folder rainshop_fastapi
+### 2. Project Client WEPAPP dg nama rainshop_web dalam folder rainshop_web
 
-pip install pymysql
+## Jika pertama kali GIT CLONE, maka lakukan berikut ini :
+* Buka/buat TERMINAL > New 
 
-pip install sqlalchemy pymysql
+* Masuk ke folder rainshop_fastapi
+ `cd rainshop_fastapi`
 
-install dotenv = pip install python-dotenv
+* Buat _virtual Environment_ dengan cara jalankan command
+`python -m venv venv`
 
-run project = python -m uvicorn rainshop_api.main:app --reload
+* Setelah itu aktifkan venv nya, deng cara jalankan command berikut ini
+`./envn/Scripts/Activate.ps1`
+
+* kemudian lakukan instalasi semua library yg diperlukan, dengan cara jalanan command berikut ini:
+`pip install -r requirements.txt`
+
+* setelah itu jalankan api dengan command berikut ini
+`uvicorn main:app --reload`
