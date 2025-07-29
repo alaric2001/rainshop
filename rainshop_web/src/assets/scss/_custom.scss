@@ -1,0 +1,153 @@
+.app-header {
+  padding-right: 20px;
+
+  .navbar-brand {
+    height: 0;
+  }
+  .dropdown-menu {
+    min-width:183px !important;
+  }
+}
+
+// Here you can add other styles
+.card {
+  .card-header {
+      font-weight: bold;
+
+      .card-header-actions {
+        margin-top: -6px;
+        margin-bottom: -10px;
+
+        .btn {
+          line-height: 32px;
+          padding: 0 16px;
+        }
+      }
+  }
+}
+
+// .b-toolbar {
+//     top: 60px;
+//     margin-right: 20px;
+//     position: fixed;
+//     z-index:1018;
+//     right: 0;
+    
+//     .btn {
+//         margin-left: 5px;
+//     }
+// }
+
+.v-select {
+  .dropdown-toggle {
+    padding: 0 !important;
+
+    &:after {
+      display: none;
+    }
+  }
+
+  .vs__actions {
+    margin-right: 5px;
+
+    .open-indicator {
+      margin-top: -2px;
+    }
+  }
+
+  input[type=search] {
+    margin: 0 4px !important;
+  }
+
+  .selected-tag {
+    margin: 0 5px !important;
+  }
+}
+
+.custom-select {
+  background: none;
+}
+
+.form-group {
+  margin-bottom: 3px;
+}
+.report-wraper {
+  width:100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  min-height: 100px;
+  border: 1px solid silver;
+  table {
+      font-size: smaller;
+      th {
+          border: 1px solid silver;
+          padding: 0 15px;
+          height: 30px;
+          background: #e8e8e8;
+      }              
+      td {
+          border: 1px solid silver;
+          padding: 0 10px;
+          height: 25px;
+      }
+      td.disabled {
+        background: #f0f3f5;
+      }
+    
+      td.expired {
+        background: red;
+      }
+      tr.selisih {
+        background: yellow;
+      }
+
+      td.tebal {
+          font-weight: bold;
+      }
+      
+      td.subtotal {
+          border-top: 2px solid #000 !important;
+      }
+      td.total {
+        border-top: 2px solid #000 !important;
+        background: #e6e6e6 !important;
+      }    
+      td.grdtotal {
+          border-top: 2px solid #000!important;
+          border-bottom: 2px double #000 !important;
+          background: #e6e6e6 !important;
+      }
+      td.grandtotal {
+        border-top: 2px solid #000!important;
+        border-bottom: 2px double #000 !important;
+        background: #e6e6e6 !important;
+      }
+      tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.05) !important;
+        cursor: default;
+      }
+}
+}
+.table-wraper {
+  width:100%;
+  height:380px;
+  overflow-x: auto;
+  overflow-y: auto;
+  border: 1px solid silver;
+}
+
+iframe {
+  border: 1px solid #ccc;
+  width: 100%;
+  height: 8in;
+}
+
+@media (min-width: 992px) {
+  .modal-lg {
+    max-width: 1024px;
+  }
+  .modal-xl {
+    width: 90%;
+    max-width:1200px;  
+  }
+}
