@@ -23,6 +23,11 @@ def update_item(image_id: str, frm: schemas.item_images.ItemImageUpdate, db: Ses
     return crud.itembarang.update_item(db, image_id, frm.image)
 
 
+@router.get("/{image_id}")
+def get_image(image_id: str, db: Session = Depends(get_db)):
+    print ('download image: ',image_id)
+    return crud.item_images.get_image(db, image_id)
+
 @router.get("/by-item/{item_id}", response_model=List[schemas.item_images.ItemImageOut])
 def get_images_by_item(item_id: str, db: Session = Depends(get_db)):
     return crud.item_images.get_images_by_item_id(db, item_id)

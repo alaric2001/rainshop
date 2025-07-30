@@ -25,10 +25,10 @@
                   <img :src="data.item.image1" class="img-fluid" alt />
           </template>
           <template v-slot:cell(image2)="data">
-                  <img :src="data.item.image1" class="img-fluid" alt />
+                  <img :src="data.item.image2" class="img-fluid" alt />
           </template>
           <template v-slot:cell(image3)="data">
-                  <img :src="data.item.image1" class="img-fluid" alt />
+                  <img :src="data.item.image3" class="img-fluid" alt />
           </template>
 
           <template v-slot:cell(action)="data">
@@ -44,6 +44,8 @@
           </template>
 
           </b-table>
+         <img v-if="(searchResults.length>0)" :src="itemsApi.itemImage(searchResults[0].image1_id)" class="img-fluid" alt />
+
     </div>
   </div>
 </template>

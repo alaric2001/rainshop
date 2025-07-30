@@ -81,5 +81,13 @@ def update_image(db: Session, image_id: str, image: str):
     traceback.print_exc()
     raise HTTPException(status_code=500, detail=f"Error saat update gambar: {str(e)}")
 
+def get_image(db: Session, image_id: str):
+    getitem = db.query(models.VwItemBarang).filter(models.VwItemBarang.image_id == image_id).first()
+    if getitem:
+        return image_to_base64(getitem.image_path)
+    else:
+       print (f' image not found dg id:{image_id}')
+
+
 def get_images_by_item_id(db: Session, item_id: str):
     return db.query(models.ItemImage).filter_by(item_id=item_id).all()

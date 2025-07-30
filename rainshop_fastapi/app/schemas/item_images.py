@@ -7,6 +7,9 @@ class ItemImageBase(BaseModel):
     image_path: str
     faiss_index: int = None
 
+class ItemImageId(BaseModel):
+    image_id: str
+
 class ItemImageCreate(ItemImageBase):
     image_id: Optional[str] = None
 

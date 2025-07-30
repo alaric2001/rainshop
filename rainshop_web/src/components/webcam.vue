@@ -74,7 +74,7 @@ export default {
 
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
       this.capturedImage2 = canvas.toDataURL("image/jpeg");  // Base64 image
-      this.$emit("image-captured2", this.capturedImage2);  // Kirim ke parent
+      this.$emit("image2-captured", this.capturedImage2);  // Kirim ke parent
     },
     capture3() {
       const video = this.$refs.video;
@@ -83,7 +83,7 @@ export default {
 
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
       this.capturedImage3 = canvas.toDataURL("image/jpeg");  // Base64 image
-      this.$emit("image-captured3", this.capturedImage3);  // Kirim ke parent
+      this.$emit("image3-captured", this.capturedImage3);  // Kirim ke parent
     },
   },
   beforeDestroy() {

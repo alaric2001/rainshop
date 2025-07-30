@@ -73,9 +73,12 @@ def image_to_base64(image_path: str) -> str:
     
     return f"data:image/jpeg;base64,{base64_str}"
 
-def add_image_attribute(obj, imgBase64, max_images=3):
-    for i in range(1, max_images + 1):
-        attr_name = f'image{i}'
+def add_image_attribute(obj, imgBase64):
+    max_images=3
+    for g in range(1, max_images + 1):
+        attr_name = f'image{g}'
         if not hasattr(obj, attr_name) or getattr(obj, attr_name) is None:
+            # print (f'image_id={image_id}  setattr {attr_name}')
             setattr(obj, attr_name, imgBase64)
+            # setattr(obj, f'image{g}_id', image_id)
             break  # Hentikan loop setelah berhasil ditambahkan

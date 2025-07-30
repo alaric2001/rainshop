@@ -199,6 +199,7 @@ export default {
   }, 
   data() {
     return {
+      itemsApi:items,
       fields: [
           { key: "item_name" , 
             label: "Nama Item Barang",
@@ -259,9 +260,11 @@ export default {
       this.capturedImage = imageData;
     },
     handleImage2Captured(imageData) {
+        console.log("handleImage2Captured")
       this.capturedImage2 = imageData;
     },
     handleImage3Captured(imageData) {
+        console.log("handleImage3Captured")
       this.capturedImage3 = imageData;
     },
     async submitItem() {
@@ -270,6 +273,8 @@ export default {
         frm.image= this.capturedImage
         frm.image2= this.capturedImage2
         frm.image3= this.capturedImage3
+        console.log("this.capturedImage2:",this.capturedImage2)
+        console.log("this.capturedImage3:",this.capturedImage3)
         const response = await items.save(frm);
         alert("Item berhasil disimpan!");
         // this.resetForm();

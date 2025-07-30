@@ -116,8 +116,6 @@ def search_items(db: Session, image: str):
         for idx in I[0]:
             getitem = db.query(models.VwItemBarang).filter(models.VwItemBarang.faiss_index == idx).first()
             if getitem:
-                print ("faiss_index; ",idx)
-                print ("image_id; ",getitem.image_id)
                 matching_items = [item for item in similar_items if item.item_id == getitem.item_id]
                 # if not any(item.item_id == getitem.item_id for item in similar_items):
                 if matching_items:

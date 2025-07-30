@@ -77,5 +77,17 @@ export default {
             }
         });
     },
+    itemImage(id) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const response = await axios.get(`images/${id}`);
+                console.log('download imgBase64:',response)
+                console.log('download imgBase64 data:',response.data)
+                resolve(response);
+            } catch (error) {
+                errorHandler(error, reject)
+            }
+        });
+    },
 
 };
