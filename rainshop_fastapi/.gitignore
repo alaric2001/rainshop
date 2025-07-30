@@ -2,3 +2,5 @@
 venv/
 img/
 index_barang.bin
+__pycache__/
+app/__pycache__
