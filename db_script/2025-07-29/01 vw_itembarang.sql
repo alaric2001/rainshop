@@ -7,7 +7,7 @@ select
     `ib`.`item_stock` as `item_stock`,
     `ib`.`isactive` as `isactive`,
     `im`.`faiss_index` as `faiss_index`,
-    `im`.`image_path` as `image_path`
+    `im`.`image_path`,`im`.`image_id`
 from
     (`rainshop`.`itembarang` `ib`
 join `rainshop`.`item_images` `im` on

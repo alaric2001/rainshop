@@ -5,11 +5,18 @@ from typing import Optional
 class ItemImageBase(BaseModel):
     item_id: str
     image_path: str
-    faiss_index: int
-
+    faiss_index: int = None
 
 class ItemImageCreate(ItemImageBase):
     image_id: Optional[str] = None
+
+class ItemImageForm(ItemImageBase):
+    image: str
+    image_id: Optional[str] = None
+
+class ItemImageUpdate(ItemImageBase):
+    image: str
+
 
 class ItemImageOut(ItemImageBase):
     image_id: str

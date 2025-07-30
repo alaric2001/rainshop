@@ -14,6 +14,11 @@ class ImageSearchRequest(BaseModel):
 class ItemBarangCreate(ItemBarangBase):
     item_id: Optional[str] = None
     image: str  # Untuk upload base64
+    image2: Optional[str] = None
+    image3: Optional[str] = None
+
+class ItemBarangUpdate(ItemBarangBase):
+    item_id: str
 
 class ItemBarangOut(ItemBarangBase):
     item_id: str

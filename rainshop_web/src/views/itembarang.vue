@@ -4,10 +4,10 @@
       <div slot="header">Restaurant Menu  
         <div class="card-header-actions">
           <b-button variant="primary mr-1" @click="add">Add</b-button>
-          <b-button variant="primary mr-1" @click="edit">Edit</b-button>
+          <!-- <b-button variant="primary mr-1" @click="edit">Edit</b-button>
           <b-button variant="primary mr-1" @click="deleteConfirm">Delete</b-button>
-          <b-button variant="primary mr-1" @click="exportxls()"><i class="fa fa-file-excel-o"></i>Export</b-button>
-          <b-button variant="primary mr-1" @click="showFilter=!showFilter"><i class="fa fa-filter"></i> Filter</b-button>
+          <b-button variant="primary mr-1" @click="exportxls()"><i class="fa fa-file-excel-o"></i>Export</b-button>-->
+          <b-button variant="primary mr-1" @click="showFilter=!showFilter"><i class="fa fa-filter"></i> Filter</b-button> 
           <b-button variant="primary mr-1" @click="close()" > <i class="fa fa-close"></i> Close</b-button>
         </div>
       </div>
@@ -97,14 +97,13 @@
       <p class="mb-1">1 record is about to be permanently deleted</p>
       <p class="font-weight-bold m-0 text-danger">Are you sure about doing this?</p>
     </b-modal>
-        <b-modal v-model="showForm"  header-bg-variant="primary" title="Form Input -  Item Barang" size="lg" :centered="true" >
+        <b-modal v-model="showForm"  header-bg-variant="primary" title="Form Input -  Item Barang" size="lg" :centered="true" hide-footer >
           <b-card>
-                <CameraCapture @image-captured="handleImageCaptured" />
+                <CameraCapture @image-captured="handleImageCaptured" @image2-captured="handleImage2Captured" @image3-captured="handleImage3Captured" class="mb-2"/>
+                
                   <b-input-group>
                       <b-input-group-prepend><label>Nama Barang</label></b-input-group-prepend>
                       <b-form-input  v-model="frmdata.item_name" :state="!$v.frmdata.item_name.$error"></b-form-input>
-                      <b-input-group-append>
-                      </b-input-group-append>
                   </b-input-group>
                 <b-row>
                     <b-col lg="6">
@@ -116,13 +115,14 @@
                     <b-col lg="5">                            
                         <b-input-group >
                             <b-input-group-prepend><label>Jml. Stock</label></b-input-group-prepend>
-                            <b-form-input v-model="model.item_stock" type="number" :min="1" :state="!$v.frmdata.item_stock.$error"></b-form-input>                                        
+                            <b-form-input v-model="frmdata.item_stock" type="number" :min="1" :state="!$v.frmdata.item_stock.$error"></b-form-input>                                        
                         </b-input-group>
                     </b-col>
                 </b-row>                      
                 <b-row class="justify-content-center mb-2">
                       <b-button class="btn btn-success mr-1" @click="submitItem">Simpan</b-button>
                       <b-button class="btn btn-warning ml-1" @click="closeForm">Batal</b-button>
+                      <b-button class="btn btn-secondary ml-1" @click="resetForm">kosongkan</b-button>
                 </b-row>
           </b-card>      
         </b-modal>
@@ -181,7 +181,7 @@
 import items from "../apis/items";
 import Loading from 'vue-loading-overlay';
 import myNumber from "../components/my-number";
-import CameraCapture from "../components/CameraCapture.vue";
+import CameraCapture from "../components/webcam.vue";
 import toastr from "mini-toastr";
 import { validationMixin } from "vuelidate";
 import { required} from "vuelidate/lib/validators";
@@ -235,7 +235,7 @@ export default {
         limit: 10,
         total: 0,
         sortBy: null,
-        sortDesc: false, terminate:'0'
+        sortDesc: false, item_name:''
       },
         frmdata: {
             item_name: '',
@@ -258,18 +258,34 @@ export default {
     handleImageCaptured(imageData) {
       this.capturedImage = imageData;
     },
+    handleImage2Captured(imageData) {
+      this.capturedImage2 = imageData;
+    },
+    handleImage3Captured(imageData) {
+      this.capturedImage3 = imageData;
+    },
     async submitItem() {
       try {
         const frm = {...this.frmdata};
         frm.image= this.capturedImage
+        frm.image2= this.capturedImage2
+        frm.image3= this.capturedImage3
         const response = await items.save(frm);
         alert("Item berhasil disimpan!");
-        this.resetForm();
+        // this.resetForm();
       } catch (error) {
         console.error("Error saving item:", error);
         alert("Gagal menyimpan item!");
       }
     },    
+    resetForm(){
+      this.frmdata.item_name= '';
+      this.frmdata.item_price= 1;
+      this.frmdata.item_stock= 1;
+      this.capturedImage=null
+      this.capturedImage2=null
+      this.capturedImage3=null
+    },
     data: async function(ctx) {
       this.tblData.sortDir = this.tblData.sortDesc ? "desc" : "asc";
       this.lkuLoading = true;
@@ -294,12 +310,10 @@ export default {
     },
     clearFilter(ctx) {
         this.tblData.item_name =  '';
-        this.tblData.categid = '';
-        this.tblData.categname = '';
         // this.refresh();
     },    
     saveFilter() {
-      const keys = ['item_name', 'categid', 'categname'];
+      const keys = ['item_name'];
       let filtered = false;
       const menuList={};
       for (const key in this.tblData) {
@@ -322,10 +336,6 @@ export default {
     add: function() {
       this.showList=false;
       this.showForm=true
-    },
-    closeForm: function() {
-      this.showList=true;
-      this.showForm=false
     },
     edit: function() {
         if (this.model) {
@@ -360,9 +370,10 @@ export default {
             }
         }
     },
-    closeFrm(){
+    closeForm: function() {
       this.showList=true;
-    },    
+      this.showForm=false
+    },
     close(){
       router.push("/");
     },    

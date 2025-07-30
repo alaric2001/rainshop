@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Any
 from app import schemas, crud
 from app.database import SessionLocal
 
@@ -22,10 +22,20 @@ def search_items(payload: schemas.itembarang.ImageSearchRequest, db: Session = D
 def create_item(item: schemas.itembarang.ItemBarangCreate, db: Session = Depends(get_db)):
     return crud.itembarang.create_item(db, item)
 
+# @router.post("/")
+# async def receive_any_json(payload: Any = Body(...)):
+#     print("Received payload:", payload)  # Debug log
+#     return {"received": payload}
+
+
+@router.put("/{item_id}")
+def update_item(item_id: str, frm: schemas.itembarang.ItemBarangUpdate, db: Session = Depends(get_db)):
+    return crud.itembarang.update_item(db, item_id, frm)
 
 @router.get("/", response_model=List[schemas.itembarang.ItemBarangOut])
-def read_items(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    return crud.itembarang.get_all_items(db, skip=skip, limit=limit)
+def read_items(item_name: str = "", page: int = 1, limit: int = 10, db: Session = Depends(get_db)):
+    skip = (page - 1) * limit
+    return crud.itembarang.get_all_items(db, item_name, skip=skip, limit=limit)
 
 
 @router.get("/{item_id}", response_model=schemas.itembarang.ItemBarangOut)

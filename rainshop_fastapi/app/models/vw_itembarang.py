@@ -17,8 +17,9 @@ class VwItemBarang(Base):
     item_price = Column(Float)
     item_stock = Column(Integer)
     isactive = Column(Boolean)
-    image_path: str
     faiss_index = Column(Integer)
+    image_path = Column(String(400))
+    image_id = Column(String(36))
 
     # def to_dict(self):
     #     return {
