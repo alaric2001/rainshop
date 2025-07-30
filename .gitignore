@@ -1,0 +1,9 @@
+rainshop_fast_api/venv/
+rainshop_fast_api/img/
+rainshop_fast_api/app/crud/__pycache__/
+rainshop_fast_api/app/models/__pycache__/
+rainshop_fast_api/app/routers/__pycache__/
+rainshop_fast_api/app/schemas/__pycache__/
+rainshop_fast_api/app/utils/__pycache__/
+rainshop_fast_api/app/.env
+rainshop_fast_api/app/index_barang.bin
