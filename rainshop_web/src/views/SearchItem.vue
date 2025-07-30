@@ -43,8 +43,7 @@
             </div>
           </template>
 
-          </b-table>
-         <img v-if="(searchResults.length>0)" :src="itemsApi.itemImage(searchResults[0].image1_id)" class="img-fluid" alt />
+        </b-table>
 
     </div>
   </div>

@@ -38,14 +38,14 @@ def create_image(db: Session, frm: schemas.item_images.ItemImageForm):
 
     new_item_image = schemas.ItemImageCreate(
         image_id=image_id,
-        item_id=item.item_id,
+        item_id=frm.item_id,
         image_path=save_path,
         faiss_index=faiss_index
     )
     db_item_image = models.ItemImage(**new_item_image.dict())
     db.add(db_item_image)
     db.commit()
-    db.refresh(db_item)
+    db.refresh(db_item_image)
 
     return { "status": True }
  except Exception as e:

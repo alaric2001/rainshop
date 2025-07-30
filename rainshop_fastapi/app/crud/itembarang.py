@@ -52,7 +52,7 @@ def create_item(db: Session, item: schemas.itembarang.ItemBarangCreate):
     db.add(db_item_image)
 
     if item.image2 is not None:
-        image_data = base64.b64decode(item.image.split(",")[1])
+        image_data = base64.b64decode(item.image2.split(",")[1])
         img2 = Image.open(BytesIO(image_data))
         image_id=str(uuid.uuid4())
         filename = f"img_{image_id}.jpg"
@@ -75,7 +75,7 @@ def create_item(db: Session, item: schemas.itembarang.ItemBarangCreate):
 
 
     if item.image3 is not None:
-        image_data = base64.b64decode(item.image.split(",")[1])
+        image_data = base64.b64decode(item.image3.split(",")[1])
         img3 = Image.open(BytesIO(image_data))
         image_id=str(uuid.uuid4())
         filename = f"img_{image_id}.jpg"
@@ -133,7 +133,7 @@ def search_items(db: Session, image: str):
 
 def update_item(db: Session, item_id: str, frm: schemas.itembarang.ItemBarangUpdate):
  try:    
-    item = db.query(models.ItemBarang).filter_by(id=item_id).first()
+    item = db.query(models.ItemBarang).filter_by(item_id=item_id).first()
     if not item:
         raise HTTPException(status_code=404, detail="Itembarang tidak ditemukan")
 

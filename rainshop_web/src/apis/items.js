@@ -50,14 +50,14 @@ export default {
     remove(obj) {
         return new Promise(async (resolve, reject) => {
             try {
-                const resp = await axios.delete(`/restomenu/${obj.item_id}`);
+                const resp = await axios.delete(`/items/${obj.item_id}`);
                 resolve(resp);
             } catch (error) {
                 errorHandler(error, reject);
             }
         })
     },
-    save(obj) {
+    insert(obj) {
         return new Promise(async (resolve, reject) => {
             try {
                 const resp = await axios.post('/items', obj);
@@ -66,6 +66,36 @@ export default {
                 errorHandler(error, reject);
             }
         });
+    },
+    update(obj) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const resp = await axios.put(`/items/${obj.item_id}`, obj);
+                resolve(resp);
+            } catch (error) {
+                errorHandler(error, reject);
+            }
+        })
+    },
+    insertImage(obj) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const resp = await axios.post('/images', obj);
+                resolve(resp);
+            } catch (error) {
+                errorHandler(error, reject);
+            }
+        });
+    },
+    updateImage(obj) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const resp = await axios.put(`/images/${obj.image_id}`, obj);
+                resolve(resp);
+            } catch (error) {
+                errorHandler(error, reject);
+            }
+        })
     },
     search(obj) {
         return new Promise(async (resolve, reject) => {
@@ -80,10 +110,8 @@ export default {
     itemImage(id) {
         return new Promise(async (resolve, reject) => {
             try {
-                const response = await axios.get(`images/${id}`);
-                console.log('download imgBase64:',response)
-                console.log('download imgBase64 data:',response.data)
-                resolve(response);
+                const {data} = await axios.get(`images/${id}`);
+                resolve(data);
             } catch (error) {
                 errorHandler(error, reject)
             }

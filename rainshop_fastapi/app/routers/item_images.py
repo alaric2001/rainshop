@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Body
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Any
 from app import schemas, crud
 from app.database import SessionLocal
 
@@ -13,14 +13,20 @@ def get_db():
     finally:
         db.close()
 
-@router.post("/", response_model=schemas.item_images.ItemImageOut)
+@router.post("/")
 def create_image(frm: schemas.item_images.ItemImageForm, db: Session = Depends(get_db)):
     return crud.item_images.create_image(db, frm)
 
 
 @router.put("/{image_id}")
-def update_item(image_id: str, frm: schemas.item_images.ItemImageUpdate, db: Session = Depends(get_db)):
-    return crud.itembarang.update_item(db, image_id, frm.image)
+def update_image(image_id: str, frm: schemas.item_images.ItemImageUpdate, db: Session = Depends(get_db)):
+    return crud.item_images.update_image(db, image_id, frm.image)
+
+# @router.put("/{image_id}")
+# async def receive_any_json(image_id: str,payload: Any = Body(...)):
+#     print("✅ Menerima image:", image_id)
+#     print("Received payload:", payload)  # Debug log
+#     return {"received": payload}
 
 
 @router.get("/{image_id}")

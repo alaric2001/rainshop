@@ -10,15 +10,17 @@ class ItemImageBase(BaseModel):
 class ItemImageId(BaseModel):
     image_id: str
 
+class ItemImageUpdate(BaseModel):
+    image: str
+    
+class ItemImageForm(BaseModel):
+    item_id: str
+    image: str
+    image_id: Optional[str] = None
+
 class ItemImageCreate(ItemImageBase):
     image_id: Optional[str] = None
 
-class ItemImageForm(ItemImageBase):
-    image: str
-    image_id: Optional[str] = None
-
-class ItemImageUpdate(ItemImageBase):
-    image: str
 
 
 class ItemImageOut(ItemImageBase):

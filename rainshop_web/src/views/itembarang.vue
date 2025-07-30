@@ -1,11 +1,9 @@
 <template>
-  <div class="animated fadeIn">
+  <div class="animated fadeIn list-item">
     <b-card v-show="showList">
       <div slot="header">Restaurant Menu  
         <div class="card-header-actions">
           <b-button variant="primary mr-1" @click="add">Add</b-button>
-          <!-- <b-button variant="primary mr-1" @click="edit">Edit</b-button>
-          <b-button variant="primary mr-1" @click="deleteConfirm">Delete</b-button>
           <b-button variant="primary mr-1" @click="exportxls()"><i class="fa fa-file-excel-o"></i>Export</b-button>-->
           <b-button variant="primary mr-1" @click="showFilter=!showFilter"><i class="fa fa-filter"></i> Filter</b-button> 
           <b-button variant="primary mr-1" @click="close()" > <i class="fa fa-close"></i> Close</b-button>
@@ -38,8 +36,20 @@
             :sort-by.sync="tblData.sortBy"
             :sort-desc.sync="tblData.sortDesc"
             :key="tblData.limit" 
-            @row-clicked="selectMenu"
+            @row-clicked="rowClicked"
           >
+
+        <template v-slot:cell(action)="data">
+          <b-dropdown dropright variant="outline-secondary" toggle-class="text-decoration-none" no-caret size="sm"
+            style="margin:-10px;">
+            <template v-slot:button-content>
+              <i class="fa fa-play text-primary"></i>
+            </template>
+            <b-dropdown-item @click="rowEditItem(data.item)" href="#" style="padding:0 !important;"> Edit Nama/Harga/Stok</b-dropdown-item>
+            <b-dropdown-item @click="rowEditGambar(data.item)" href="#" style="padding:0 !important;"> Edit Gambar</b-dropdown-item>
+          </b-dropdown>
+        </template>
+
           <template v-slot:cell(isactive)="data">
             <span v-if="(data.item.isactive==1)">Yes</span>
           </template>
@@ -49,25 +59,7 @@
           <template v-slot:cell(item_price)="data">
             {{(data.item.item_price)|numFormat}}
           </template>
-          <template v-slot:cell(menuimage)="data">
-              <div style="width:50%; margin: -10px; position: relative;">
-                  <img :src="data.item.menuimg" class="img-fluid" alt />
-              </div>
-          </template>
-
-          <template v-slot:cell(action)="data">
-            <div class="text-center">
-            <a href="javascript:void(0)" @click="edit(data.item)">
-              <i class="fa fa-pencil"></i>
-            </a>
-            |
-            <a href="javascript:void(0)" class="text-danger" @click="deleteConfirm(data.item)">
-              <i class="fa fa-trash"></i>
-            </a>
-            </div>
-          </template>
-
-          </b-table>
+        </b-table>
         <b-row class="mt-1">
           <b-col cols="4">
             <div>
@@ -97,38 +89,113 @@
       <p class="mb-1">1 record is about to be permanently deleted</p>
       <p class="font-weight-bold m-0 text-danger">Are you sure about doing this?</p>
     </b-modal>
-        <b-modal v-model="showForm"  header-bg-variant="primary" title="Form Input -  Item Barang" size="lg" :centered="true" hide-footer >
-          <b-card>
-                <CameraCapture @image-captured="handleImageCaptured" @image2-captured="handleImage2Captured" @image3-captured="handleImage3Captured" class="mb-2"/>
-                
-                  <b-input-group>
-                      <b-input-group-prepend><label>Nama Barang</label></b-input-group-prepend>
-                      <b-form-input  v-model="frmdata.item_name" :state="!$v.frmdata.item_name.$error"></b-form-input>
-                  </b-input-group>
-                <b-row>
-                    <b-col lg="6">
-                        <b-input-group >
-                            <b-input-group-prepend><label>Harga Barang</label></b-input-group-prepend>
-                            <my-number class="form-control text-right" separator=","  :precision="2"  v-model="frmdata.item_price" :state="!$v.frmdata.item_price.$error" ></my-number>
-                        </b-input-group>
-                    </b-col>   
-                    <b-col lg="5">                            
-                        <b-input-group >
-                            <b-input-group-prepend><label>Jml. Stock</label></b-input-group-prepend>
-                            <b-form-input v-model="frmdata.item_stock" type="number" :min="1" :state="!$v.frmdata.item_stock.$error"></b-form-input>                                        
-                        </b-input-group>
-                    </b-col>
-                </b-row>                      
-                <b-row class="justify-content-center mb-2">
-                      <b-button class="btn btn-success mr-1" @click="submitItem">Simpan</b-button>
-                      <b-button class="btn btn-warning ml-1" @click="closeForm">Batal</b-button>
-                      <b-button class="btn btn-secondary ml-1" @click="resetForm">kosongkan</b-button>
-                </b-row>
-          </b-card>      
-        </b-modal>
+    
+    <b-modal v-model="showAddForm"  header-bg-variant="primary" title="Form Input -  Item Barang" size="lg" :centered="true" hide-footer >
+      <b-card>
+            <CameraCapture3 @image-captured="handleImageCaptured" @image2-captured="handleImage2Captured" @image3-captured="handleImage3Captured" class="mb-2"/>
+            
+              <b-input-group>
+                  <b-input-group-prepend><label>Nama Barang</label></b-input-group-prepend>
+                  <b-form-input  v-model="frmdata.item_name" :state="!$v.frmdata.item_name.$error"></b-form-input>
+              </b-input-group>
+            <b-row>
+                <b-col lg="6">
+                    <b-input-group >
+                        <b-input-group-prepend><label>Harga Barang</label></b-input-group-prepend>
+                        <my-number class="form-control text-right" separator=","  :precision="2"  v-model="frmdata.item_price" :state="!$v.frmdata.item_price.$error" ></my-number>
+                    </b-input-group>
+                </b-col>   
+                <b-col lg="5">                            
+                    <b-input-group >
+                        <b-input-group-prepend><label>Jml. Stock</label></b-input-group-prepend>
+                        <b-form-input v-model="frmdata.item_stock" type="number" :min="1" :state="!$v.frmdata.item_stock.$error"></b-form-input>                                        
+                    </b-input-group>
+                </b-col>
+            </b-row>                      
+            <b-row class="justify-content-center mb-2">
+                  <b-button class="btn btn-success mr-1" @click="submitItem">Simpan</b-button>
+                  <b-button class="btn btn-warning ml-1" @click="closeForm">Batal</b-button>
+                  <b-button class="btn btn-secondary ml-1" @click="resetForm">kosongkan</b-button>
+            </b-row>
+      </b-card>      
+    </b-modal>
+    <b-modal v-model="showEditItem"  header-bg-variant="primary" title="Form Edit -  Item Barang" size="lg" :centered="true" hide-footer >
+      <b-card>
+              <b-input-group>
+                  <b-input-group-prepend><label>Nama Barang</label></b-input-group-prepend>
+                  <b-form-input  v-model="frmdata.item_name" :state="!$v.frmdata.item_name.$error"></b-form-input>
+              </b-input-group>
+            <b-row>
+                <b-col lg="6">
+                    <b-input-group >
+                        <b-input-group-prepend><label>Harga Barang</label></b-input-group-prepend>
+                        <my-number class="form-control text-right" separator=","  :precision="2"  v-model="frmdata.item_price" :state="!$v.frmdata.item_price.$error" ></my-number>
+                    </b-input-group>
+                </b-col>   
+                <b-col lg="5">                            
+                    <b-input-group >
+                        <b-input-group-prepend><label>Jml. Stock</label></b-input-group-prepend>
+                        <b-form-input v-model="frmdata.item_stock" type="number" :min="1" :state="!$v.frmdata.item_stock.$error"></b-form-input>                                        
+                    </b-input-group>
+                </b-col>
+            </b-row>                      
+            <b-row class="justify-content-center mb-2">
+                  <b-button class="btn btn-success mr-1" @click="submitEdit">Simpan</b-button>
+                  <b-button class="btn btn-warning ml-1" @click="closeEditItem">Batal</b-button>
+            </b-row>
+      </b-card>      
+    </b-modal>
+    <b-modal v-model="showEditGambar"  header-bg-variant="primary" title="Form Edit - Gambar  Barang" size="lg" :centered="true" hide-footer >
+      <b-card>
+              <b-input-group>
+                  <b-input-group-prepend><label>Nama Barang</label></b-input-group-prepend>
+                  <b-form-input  v-model="model.item_name" disabled></b-form-input>
+              </b-input-group>
+              <b-row v-if="modeCaptureCamera==false">
+                  <b-col cols="4" v-for="(row,imgIdx) in images" :key="row.image_id">
+                      <b-input-group>
+                          <b-input-group-prepend><label class="text-right">Gambar#{{imgIdx+1 }}</label></b-input-group-prepend>
+                          <b-input-group-append>
+                              <b-button variant="primary mr-1" @click="ShowCaptureCamera(imgIdx)">Edit <i class="fa fa-camera"></i></b-button>
+                          </b-input-group-append>                    
+                      </b-input-group>
+                      <img :src="row.image" class="img-fluid" alt />
+                  </b-col>
+              </b-row>
+               <CameraCapture v-else @image-captured="handleImageCaptured" class="mb-2"/>
+
+            <b-row class="justify-content-center mt-1 mb-2">
+                  <b-button class="btn btn-success mr-1" @click="submitEditGambar">Simpan</b-button>
+                  <b-button class="btn btn-warning ml-1" @click="closeEditGambar">Batal</b-button>
+            </b-row>
+      </b-card>      
+    </b-modal>
+
   </div>
 </template>
 <style lang="scss">
+  .list-item {
+    table {
+      td {
+        .dropdown-item {
+          padding: 0.1rem 1.5rem !important;
+          font-size: smaller !important;
+        }
+      }
+    }
+  }
+  .modal-form {
+    .input-group {
+        padding-bottom:2px;
+        .input-group-prepend {
+            label {
+                padding-top: 5px;
+                padding-right: 5px;
+                width: 100px;
+            }
+        }
+    }
+  }
     .input-group {
         padding-bottom:2px;
         .input-group-prepend {
@@ -181,14 +248,15 @@
 import items from "../apis/items";
 import Loading from 'vue-loading-overlay';
 import myNumber from "../components/my-number";
-import CameraCapture from "../components/webcam.vue";
+import CameraCapture from "../components/CameraCapture.vue";
+import CameraCapture3 from "../components/CameraCapture3.vue";
 import toastr from "mini-toastr";
 import { validationMixin } from "vuelidate";
 import { required} from "vuelidate/lib/validators";
 toastr.init();
 
 export default {
-  components: {Loading,myNumber,CameraCapture},
+  components: {Loading,myNumber,CameraCapture,CameraCapture3},
   mixins: [validationMixin],
   validations: {
         frmdata: {
@@ -201,6 +269,11 @@ export default {
     return {
       itemsApi:items,
       fields: [
+          {
+            key: "action",
+            thStyle: "width:50px",
+            label:""
+          },
           { key: "item_name" , 
             label: "Nama Item Barang",
             sortable: true
@@ -225,9 +298,9 @@ export default {
             sortable: true
           },
           {
-            key: "menuimage",
-            thStyle: "width:20px",
-            label: "Image",
+            key: "modified",
+            thStyle: "width:120px",
+            label: "Last Update",
             tdClass: "text-center"
           },
       ],
@@ -244,15 +317,19 @@ export default {
             item_stock: 1,
         },
       model:{},
+      images:[],
       isLoading:false,
       showDelConfirm: false,
       showFilter:false,
-      showForm:false,
+      showAddForm:false,
+      showEditItem:false,
+      showEditGambar:false,
+      modeCaptureCamera:false,
       showList:true,
       showReport:false,
       reportUrl: `${location.origin}/#load`,
-        activeStatus : [{ value: '', text: '-- ALL --' },, { value: '0', text: 'Yes' },{ value: '1', text: 'No' }],
-
+      activeStatus : [{ value: '', text: '-- ALL --' },, { value: '0', text: 'Yes' },{ value: '1', text: 'No' }],
+      editImageIdx:''
     };
   },
   methods: {
@@ -275,14 +352,110 @@ export default {
         frm.image3= this.capturedImage3
         console.log("this.capturedImage2:",this.capturedImage2)
         console.log("this.capturedImage3:",this.capturedImage3)
-        const response = await items.save(frm);
+        const response = await items.insert(frm);
         alert("Item berhasil disimpan!");
         // this.resetForm();
       } catch (error) {
         console.error("Error saving item:", error);
         alert("Gagal menyimpan item!");
       }
-    },    
+    }, 
+    async submitEdit() {
+      try {
+        const frm = {...this.frmdata};
+        frm.item_id=this.model.item_id;
+        const response = await items.update(frm);
+        alert("Item berhasil disimpan!");
+        // this.resetForm();
+      } catch (error) {
+        console.error("Error saving item:", error);
+        alert("Gagal menyimpan item!");
+      }
+    }, 
+    async submitInsertGambar() {
+      try {
+        const frm = {...this.frmdata};
+        frm.item_id=this.model.item_id;
+        await items.insertImage(frm);
+        this.refresh();
+        alert("Item berhasil disimpan!");
+      } catch (error) {
+        console.error("Error saving item:", error);
+        alert("Gagal menyimpan item!");
+      }
+    }, 
+    async submitEditGambar() {
+      try {
+        
+        const frm = {
+          image:this.capturedImage
+        }
+        const editedImage= this.images[this.editImageIdx]
+        if (editedImage.image_id) {
+            frm.image_id=editedImage.image_id;
+            await items.updateImage(frm);
+        } else {
+            frm.item_id=this.model.item_id;
+            await items.insertImage(frm);
+        }
+        alert("Item berhasil disimpan!");
+        // this.resetForm();
+      } catch (error) {
+        console.error("Error saving item:", error);
+        alert("Gagal menyimpan item!");
+      }
+    }, 
+    rowClicked(record, index) {
+      if (this.model && this.model._rowVariant) {
+        delete this.model._rowVariant;
+      }
+      this.model = record;
+      record._rowVariant = "info";
+      this.$forceUpdate();
+    },
+    rowEditItem(record) {
+      this.rowClicked(record);
+      this.frmdata.item_name= this.model.item_name;
+      this.frmdata.item_price= this.model.item_price;
+      this.frmdata.item_stock= this.model.item_stock;
+      this.frmdata.isactive= this.model.isactive;
+      this.showEditItem=true;
+    },
+    async rowEditGambar(record) {
+      this.rowClicked(record);
+      try {
+        const dataSvr = await items.detail(this.model)
+        this.images = dataSvr.images;
+        for (let index = 0; index < this.images.length; index++) {
+          const el = this.images[index];
+          const imgBase64 = await items.itemImage(el.image_id)
+          el.image=imgBase64          
+        }        
+        if (this.images.length<2) {
+           for (let index = this.images.length; index < 3; index++) {
+            this.images.push({})
+           }
+        }
+        this.modeCaptureCamera=false;
+        this.editImageIdx='';
+        this.showEditGambar=true;
+      } catch (error) {
+          console.log('error : ', error);
+          if (error.sql) {
+            toastr.error(error.sql, 'ERROR MESSAGE', 10000);
+          } else if (error.sqlMessage) {
+            toastr.error(error.sqlMessage, 'ERROR MESSAGE', 10000);
+          } else if (error.message) {
+            toastr.error(error.message, 'ERROR MESSAGE', 10000);
+          } else {
+            toastr.error(JSON.stringify(error), 'ERROR MESSAGE', 10000);
+          }        
+      }
+    },
+    ShowCaptureCamera(imageIdx) {
+        this.editImageIdx=imageIdx;
+        this.modeCaptureCamera=true;
+    },
     resetForm(){
       this.frmdata.item_name= '';
       this.frmdata.item_price= 1;
@@ -297,14 +470,6 @@ export default {
       let list = await items.list(this.tblData);
       this.lkuLoading = false;
       return list;  
-    },
-    selectMenu(record,index) {
-      if ((this.model) && (this.model._rowVariant)) {
-          delete this.model._rowVariant;
-      }
-      this.model = record;
-      record._rowVariant= 'info';
-      this.$forceUpdate();
     },
     search() {
       this.tblData.page=1;
@@ -338,9 +503,10 @@ export default {
       }
     },    
 
+
     add: function() {
       this.showList=false;
-      this.showForm=true
+      this.showAddForm=true
     },
     edit: function() {
         if (this.model) {
@@ -375,9 +541,17 @@ export default {
             }
         }
     },
+    closeEditItem: function() {
+      this.showList=true;
+      this.showEditItem=false
+    },
+    closeEditGambar: function() {
+      this.showList=true;
+      this.showEditGambar=false
+    },
     closeForm: function() {
       this.showList=true;
-      this.showForm=false
+      this.showAddForm=false
     },
     close(){
       router.push("/");
