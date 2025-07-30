@@ -1,8 +1,6 @@
 rainshop_fastapi/venv/
 rainshop_fastapi/img/
-rainshop_fastapi/app/index_barang.bin
-rainshop_fastapi/node_modules/
-rainshop_fastapi/dist/
+rainshop_fastapi/index_barang.bin
 rainshop_fastapi/**/*.pyc
 
 rainshop_web/node_modules
