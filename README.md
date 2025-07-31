@@ -20,3 +20,7 @@
 
 * setelah itu jalankan api dengan command berikut ini
 `uvicorn main:app --reload`
+
+* jika anda melakukan perubahan coding dan menginstall library baru dg pip install, maka setelah jalan command berikut ini 
+`pip freeze > requirements.txt`
+untuk mengupdate daftar library yg dipakai dalam project rainshop_fastapi 

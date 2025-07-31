@@ -68,7 +68,7 @@
                             </b-col>
                             <b-col cols="5">
                                 <div class="float-right">
-                                    No Struk: {{ frmdata.orderno }}
+                                    No Struk: {{ frmdata.sales_no }}
                                 </div>
                             </b-col>
                         </b-row>
@@ -123,20 +123,20 @@
                         <!-- end of list -->
                         <!-- total -->
                         <div class="sum-total">
-                            <b-row >
+                            <!-- <b-row >
                                 <b-col col md="6" class="text-right">
                                     <h6>Sub Total</h6>
                                 </b-col>
                                 <b-col col md="6" class="text-right">
                                 <h6>{{ frmdata.subtotal | numFormat('0,0.00') }}</h6>
                                 </b-col>
-                            </b-row>
-                            <b-row class="mt-1">
+                            </b-row> -->
+                            <b-row >
                                 <b-col col md="6" class="text-right pt-2">
                                     <h6>Total Belanja</h6>
                                 </b-col>
                                 <b-col col md="6" class="text-right pt-2" >
-                                    <h6>{{ frmdata.total  | numFormat('0,0.00') }}</h6>
+                                    <h6>{{ frmdata.sales_total  | numFormat('0,0.00') }}</h6>
                                     <hr/>
                                 </b-col>
                             </b-row>
@@ -145,7 +145,7 @@
                                     <h6>Bayar pakai</h6>
                                 </b-col>
                                 <b-col col md="6" >
-                                    <b-form-radio-group  v-model="frmdata.carabayar">
+                                    <b-form-radio-group  v-model="frmdata.sales_paym">
                                         <b-form-radio  value="TUNAI">UANG TUNAI</b-form-radio>
                                         <b-form-radio  value="QRIS">QRIS</b-form-radio>
                                     </b-form-radio-group>
@@ -157,7 +157,7 @@
                                     <h6>Uang Pembayaran</h6>
                                 </b-col>
                                 <b-col col md="6" class="text-right">
-                                    <my-number class="form-control text-right" separator=","  :precision="2"  v-model="frmdata.paidamt" :state="!$v.frmdata.paidamt.$error" ></my-number>
+                                    <my-number class="form-control text-right" separator=","  :precision="2"  v-model="frmdata.paid_amount" :state="!$v.frmdata.paid_amount.$error" ></my-number>
                                 </b-col>
                             </b-row>
                             <b-row class="mt-2">
@@ -165,7 +165,7 @@
                                     <h6>Kembalian</h6>
                                 </b-col>
                                 <b-col col md="6" class="text-right">
-                                    <h6 style="color: rgb(0, 119, 255);">{{ frmdata.changeamt  | numFormat('0,0.00') }}</h6>
+                                    <h6 style="color: rgb(0, 119, 255);">{{ frmdata.change_amount  | numFormat('0,0.00') }}</h6>
                                     <hr/>
                                 </b-col>
                             </b-row>
@@ -373,9 +373,10 @@
 <script>
 import CameraCapture from "../components/CameraCapture.vue";
 import items from "../apis/items";
+import sales from "../apis/sales";
 import moment from 'moment';
-  import { validationMixin } from 'vuelidate'
-  import { required } from 'vuelidate/lib/validators'
+import { validationMixin } from 'vuelidate'
+import { required } from 'vuelidate/lib/validators'
 import myNumber from "../components/my-number";
 
 export default {
@@ -383,7 +384,7 @@ export default {
     mixins: [validationMixin],
     validations: {
         frmdata: {
-            paidamt: { required },
+            paid_amount: { required },
         },
     }, 
   data() {
@@ -402,67 +403,10 @@ export default {
             tdClass: "text-center"
           },
       ],
-        showPayment:false,
-        tableTabIndex: 0,
-        refreshTable: 0,
         selectedItem:null,
         itemList: [],
         menuIdx: 0,
-        menuqty:'',
-        paymentamount: 0,
-        paymentfields: [
-            {
-                key: "index",
-                label: "No.",
-            }, 
-            {
-                key: 'namepayment', 
-                label: 'Payment'
-            },
-            {
-                key: 'paymentnote', 
-                label: 'Payment Note'
-            },
-            { 
-                key: 'payment',
-                label: 'Amount',
-                thClass: "text-right",
-                tdClass: "text-right",
-            },
-            {
-                key: "action",
-                label: "Action",
-                thClass: "text-center",
-            }   
-        ],
-        paymentlist: [],
-        outlet:{outletid: ''},
-        campaign:null,campaignWhTerm:[], campaignAll:[],campaignInfo:{},
         lineorder: [],
-        delivery: {
-            deliverby: '',
-            customernm: '',
-            DeliveryAddr: '',
-            PhoneNo: '',
-        },
-        frmdata: {
-            totalitem: '',
-            totalqty: '',
-            note: '',
-            orderkey: '',
-            orderdate: moment().format('YYYY-MM-DD HH:mm'),
-            subtotal: 0,
-            dpp: 0,
-            orderstatus: null,
-            carabayar: 'TUNAI',
-            paidamt:0
-        },
-        frmpayment: {
-            paymentCode:'',
-            paymentName:'',
-            paymentType:'',
-            amount:'',
-        },
       tblData: {
         page: 1,
         limit: 10,
@@ -472,7 +416,6 @@ export default {
       },
         modeViewOnly:false,
         printer:null,
-        printerKitchen:null
 
     };
   },
@@ -505,90 +448,139 @@ export default {
         });
         this.itemList = list;  
     },        
-        clickItemDibeli: function(menu) {
-                if (this.modeViewOnly==true) {
-                    toastr.error('View Only, No Data Change allowed');
-                    return;
-                } 
-                // if (menu.isactive != 1) {
-                //     toastr.error('SOLD OUT ITEM');
-                //     return;
-                // } 
-            const saiki= (this.frmdata.orderdate) ? moment(this.frmdata.orderdate).format('HH:mm') : moment().format('HH:mm');
-            this.selectedItem={};
-            for(const key in menu){
-                this.selectedItem[key] = menu[key];
-            }
-            this.selectedItem.qty = 1;
-            this.menuqty = 1;
-            this.lineorder.push(this.selectedItem);
-            this.hitungTotal();
-        },
+    clickItemDibeli: function(menu) {
+        // if (this.modeViewOnly==true) {
+        //     toastr.error('View Only, No Data Change allowed');
+        //     return;
+        // } 
+        // if (menu.isactive != 1) {
+        //     toastr.error('SOLD OUT ITEM');
+        //     return;
+        // } 
+        // const saiki= (this.frmdata.sales_time) ? moment(this.frmdata.sales_time).format('HH:mm') : moment().format('HH:mm');
+        this.selectedItem={};
+        for(const key in menu){
+            this.selectedItem[key] = menu[key];
+        }
+        this.selectedItem.qty = 1;
+        this.lineorder.push(this.selectedItem);
+        this.hitungTotal();
+    },
 
-        increaseQty: function(row){
-            if (this.modeViewOnly==true) {
-                toastr.error('View Only, No Data Change allowed');
-                return;
-            } 
-            row.qty += 1;
-            this.hitungTotal();
-        },
-        decreaseQty: function(row){
-            if (this.modeViewOnly==true) {
-                toastr.error('View Only, No Data Change allowed');
-                return;
-            } 
-            if (row.qty>1) row.qty -= 1;
-            this.hitungTotal();
-        },
-        hitungTotal: function(){
-
-            let totalqty = 0, subtotal = 0, discval = 0, netto = 0, serviceval = 0, dpp=0, pb1val = 0, total = 0, paidamt = 0;
+    increaseQty: function(row){
+        if (this.modeViewOnly==true) {
+            toastr.error('View Only, No Data Change allowed');
+            return;
+        } 
+        row.qty += 1;
+        this.hitungTotal();
+    },
+    decreaseQty: function(row){
+        if (this.modeViewOnly==true) {
+            toastr.error('View Only, No Data Change allowed');
+            return;
+        } 
+        if (row.qty>1) row.qty -= 1;
+        this.hitungTotal();
+    },
+    hitungTotal: function(){
+            let totalqty = 0, subtotal = 0, discval = 0, netto = 0, serviceval = 0, dpp=0, pb1val = 0, total = 0, paid_amount = 0;
             const total_qty_description = [];
-            this.lineorder.forEach((menu_ordered)=> {
-                if (!(menu_ordered.campaignid)) {
-                    subtotal += menu_ordered.qty * menu_ordered.item_price;
-                    discval += menu_ordered.discval; // ini diganti campaign
-                } else if ((menu_ordered.termapply || 0)==0) {
-                    subtotal += menu_ordered.qty * menu_ordered.item_price;
-                    discval += menu_ordered.discval; // ini diganti campaign
-                }
+            this.lineorder.forEach((item_dibeli)=> {
+                subtotal += item_dibeli.qty * item_dibeli.item_price;
+                item_dibeli.subtotal=subtotal
             });
 
             subtotal=0; discval=0;
-            this.lineorder.forEach((menu_ordered)=> {
-                // console.log('menu_ordered :', menu_ordered);
-                totalqty += menu_ordered.qty;
-                subtotal += menu_ordered.qty * menu_ordered.item_price;
-                menu_ordered.discval= menu_ordered.qty * menu_ordered.item_price * (menu_ordered.discpc/100)
-                discval += menu_ordered.discval; 
+            this.lineorder.forEach((item_dibeli)=> {
+                // console.log('item_dibeli :', item_dibeli);
+                totalqty += item_dibeli.qty;
+                subtotal += item_dibeli.qty * item_dibeli.item_price;
                                 
-                total_qty_description.push(`${menu_ordered.qty} ${menu_ordered.item_name}`);
+                total_qty_description.push(`${item_dibeli.qty} ${item_dibeli.item_name}`);
             });
-            this.frmdata.note=total_qty_description.join(', ');
+            // this.frmdata.note=total_qty_description.join(', ');
             // HITUNG TOTAL INVOICE
             netto = subtotal - discval;
-            serviceval = netto * ((this.outlet.servicepc || 0)/100) ;
-            dpp=(netto + serviceval);
-            pb1val = dpp * ((this.outlet.pb1pc || 0)/100);
-            total = netto + serviceval + pb1val;
+            total = netto ;
 
             this.frmdata.totalitem = `${this.lineorder.length}  ${this.lineorder.length > 1 ? 'items' : 'item'}` ;
             this.frmdata.totalqty = `${totalqty} Qty`;
 
             this.frmdata.subtotal = subtotal;
-            this.frmdata.discval = discval;
             this.frmdata.netto = netto;
-            this.frmdata.servicepc = this.outlet.servicepc || 0;
-            this.frmdata.serviceval = serviceval;
-            this.frmdata.dpp = dpp;
-            this.frmdata.pb1pc = this.outlet.pb1pc || 0;
-            this.frmdata.pb1val = pb1val;
-            this.frmdata.total = total;
+            this.frmdata.sales_total = total;
 
             this.$forceUpdate();
         },
+        saveOrder: async function(send2kitchen) {
+            // if (this.modeViewOnly==true) {
+            //     toastr.error('View Only, No Data Change allowed');
+            //     return;
+            // } 
+            this.hitungTotal();
+            try {
+                const data = {};
+                const keys = ['sales_id','sales_no','sales_total','sales_paym','totalitem'];
+                for (var key in this.frmdata) {
+                    if (keys.indexOf(key) >= 0 && this.frmdata[key]) {
+                    data[key] = this.frmdata[key];
+                }
+                data.lineorder =  this.lineorder.reduce((newArr, item) => {
+                                    newArr.push(item);
+                                        return newArr;
+                                }, []);
+                let baru=false;
+                if (!(this.frmdata.sales_id)) {
+                    baru=true;
+                }                        
+                if (frm.sales_id) {
+                    toastr.info(`calling POST  ${process.env.VUE_APP_BASE_API}/print-struk`)
+                    console.log(`calling POST  ${process.env.VUE_APP_BASE_API}/print-struk`);
+                    sales.printStruk(data).then(()=>{
+                        console.log(`DONE calling ${process.env.VUE_APP_BASE_API}/print-struk`);
+                    })
+                    return 
+                }  else {
+                    const result = await sales.save(data);
+                    // console.log('result : ', result);
+                    this.frmdata.sales_id=result.data.sales_id;
+                    this.frmdata.sales_no=result.data.sales_no;
+                    this.frmdata.sales_time=result.data.sales_time;
+                    data.sales_id=result.data.sales_id;
+                    data.sales_no=result.data.sales_no;
+                    data.sales_time=result.data.sales_time;
+                }
 
+                if (baru==true){
+                    toastr.success(`Order Saved, Number.${this.frmdata.sales_no}`);
+                } else {
+                    toastr.success(`Order Change Saved`);
+                }
+            } catch (error) {
+                console.log('error : ', error);
+                if (error.sql) {
+                    toastr.error(error.sql, 'ERROR MESSAGE', 10000);
+                } else if (error.sqlMessage) {
+                    toastr.error(error.sqlMessage, 'ERROR MESSAGE', 10000);
+                } else if (error.message) {
+                    toastr.error(error.message, 'ERROR MESSAGE', 10000);
+                } else {
+                    toastr.error(JSON.stringify(error), 'ERROR MESSAGE', 10000);
+                }        
+            }
+        },
+        cancelOrder: function() {
+            // clear frmdata
+            for(const key in this.frmdata){
+                this.frmdata[key] = '';
+            }
+            this.frmdata.sales_id='';
+
+            this.lineorder = [];
+            this.frmdata.subtotal = 0;
+            this.frmdata.dpp = 0;
+        },
   },
 };
 </script>
