@@ -6,6 +6,13 @@ from app.utils.print_helper import print_serial
 from escpos.printer import Serial
 import moment
 
+import usb.core
+import usb.util
+
+import usb.backend.libusb1
+from escpos.printer import Usb
+from usb.backend import libusb1
+
 BT_ADDRESS = '';
 
 
@@ -68,14 +75,14 @@ def center_text(text: str, bold=False, double_size=False):
 #     result = print_blutooth(BT_ADDRESS,data.text)
 #     return result
 
-# @router.post("/print-debug")
-# async def receive_any_json(payload: Any = Body(...)):
-#     print("Received payload:", payload)  # Debug log
-#     return {"received": payload}
+@router.post("/print-debug")
+async def receive_any_json(payload: Any = Body(...)):
+    print("Received payload:", payload)  # Debug log
+    return {"received": payload}
 
 @router.post("/print-struk")
 async def print_struk(data: SalesForm):
-    printer = Serial(devfile='COM5', baudrate=9600, timeout=1)  # Ganti dengan COM port printer kamu
+    printer = Serial(devfile='USB003', baudrate=9600, timeout=1)  # Ganti dengan COM port printer kamu
     
     now = moment.now()
     # Header
@@ -109,10 +116,34 @@ async def print_struk(data: SalesForm):
 
 
 @router.post("/print-test")
-async def print_struk(data: PrintData):
+async def print_test(data: PrintData):
+
+
+    # Cari device printer
+    # dev = usb.core.find(find_all=True)
+    # backend = usb.backend.libusb1.get_backend(find_library=lambda x: "C:\\Users\\testl\\Downloads\\drive-download-20250731T143303Z-1-001\\libusb-1.0.29\\VS2022\\MS64\\dll\\libusb-1.0.dll")
+    backend = usb.backend.libusb1.get_backend(find_library=lambda x: "C:\\Users\\testl\\Documents\\RainShop\\rainshopGitHub\\rainshop\\rainshop_fastapi\\libusb-1.0.29\VS2022\\MS64\\dll\\libusb-1.0.dll")
+    dev = usb.core.find(backend=backend, find_all=True)
+
+    for d in dev:
+        # print(f"Vendor ID: {hex(d.idVendor)}, Product ID: {hex(d.idProduct)}")
+        print(f"Vendor ID: {hex(d.idVendor)}, Product ID: {hex(d.idProduct)}")
+
     now = moment.now()
 
-    printer = Serial(devfile='COM5', baudrate=9600, timeout=1)  # Ganti dengan COM port printer kamu
+    # printer = Serial(devfile='USB003')  # Ganti dengan COM port printer kamu
+    
+    try:
+        printer = Usb(0x0483, 0x70b, backend=backend)  # Gunakan vendor & product ID yang kamu temukan
+    except Exception as e:
+        return {"status": "error", "message": f"Gagal konek ke printer: {str(e)}"}
+
+    device = usb.core.find(idVendor=0x0483, idProduct=0x070b, backend=backend)
+    if device is None:
+        print("Printer not found")
+    else:
+        print("Printer found!")
+        print(f"Manufacturer: {usb.util.get_string(device, device.iManufacturer)}")
 
     # Header
     printer.set(align='center', bold=True, width=2, height=2)
