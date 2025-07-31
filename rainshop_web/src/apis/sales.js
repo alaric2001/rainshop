@@ -88,5 +88,25 @@ export default {
             }
         });
     },
+    printDebug(obj) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const resp = await axios.post('/print-debug', obj);
+                resolve(resp);
+            } catch (error) {
+                errorHandler(error, reject);
+            }
+        });
+    },
+    printTest(obj) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const resp = await axios.post('/print-test', obj);
+                resolve(resp);
+            } catch (error) {
+                errorHandler(error, reject);
+            }
+        });
+    },
 
 };

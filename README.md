@@ -13,7 +13,7 @@
 `python -m venv venv`
 
 * Setelah itu aktifkan venv nya, deng cara jalankan command berikut ini
-`./envn/Scripts/Activate.ps1`
+`venv/scripts/activate.ps1`
 
 * kemudian lakukan instalasi semua library yg diperlukan, dengan cara jalanan command berikut ini:
 `pip install -r requirements.txt`
