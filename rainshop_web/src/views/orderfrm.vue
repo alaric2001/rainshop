@@ -477,10 +477,34 @@ export default {
     };
   },
   methods: {
-        getItems: async function() {
-            const list = await items.list(this.tblData);
-            this.itemList = list;  
-        },
+    async searchItem(imageData) {
+      try {
+        const list = await items.imageSearch({
+          image: imageData,  // Base64 image
+        });
+        list.forEach(el => {
+          el.image='';
+          items.imageItem(el.image_id).then((imgBase64) => {
+            el.image=imgBase64          
+          })
+        });
+        this.itemList = list;
+        this.showWebcam=false;
+      } catch (error) {
+        console.error("Error searching item:", error);
+        alert("Gagal mencari item!");
+      }
+    },
+    getItems: async function() {
+        const list = await items.list(this.tblData);
+        list.forEach(el => {
+          el.image='';
+          items.imageItem(el.image_id).then((imgBase64) => {
+            el.image=imgBase64          
+          })
+        });
+        this.itemList = list;  
+    },        
         clickItemDibeli: function(menu) {
                 if (this.modeViewOnly==true) {
                     toastr.error('View Only, No Data Change allowed');
@@ -501,24 +525,6 @@ export default {
             this.hitungTotal();
         },
 
-    async searchItem(imageData) {
-      try {
-        const list = await items.imageSearch({
-          image: imageData,  // Base64 image
-        });
-        list.forEach(el => {
-          el.image='';
-          items.imageItem(el.image_id).then((imgBase64) => {
-            el.image=imgBase64          
-          })
-        });
-        this.itemList = list;
-        this.showWebcam=false;
-      } catch (error) {
-        console.error("Error searching item:", error);
-        alert("Gagal mencari item!");
-      }
-    },
         increaseQty: function(row){
             if (this.modeViewOnly==true) {
                 toastr.error('View Only, No Data Change allowed');

@@ -7,6 +7,7 @@ class ItemBarangBase(BaseModel):
     item_price: Optional[float] = None
     item_stock: Optional[int] = 0
     isactive: Optional[bool] = True
+    image_id: Optional[str] = None
 
 class ImageSearchRequest(BaseModel):
     image: str

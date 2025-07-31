@@ -19,13 +19,20 @@ def get_max_faiss_index(db: Session) -> int:
 
 def create_image(db: Session, frm: schemas.item_images.ItemImageForm):
  try:
+    image_id=str(uuid.uuid4())
+    item = db.query(models.ItemBarang).filter_by(item_id=frm.item_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Itembarang tidak ditemukan")
+    
+    if item.image_id is None:
+       item.image_id=image_id
+
     # 1. Decode base64 image
     image_data = base64.b64decode(frm.image.split(",")[1])
     
     # 2. Buka gambar dengan PIL
     img = Image.open(BytesIO(image_data))
 
-    image_id=str(uuid.uuid4())
     filename = f"img_{image_id}.jpg"
     save_path = os.path.join("img", filename)
     

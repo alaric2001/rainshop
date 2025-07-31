@@ -45,7 +45,7 @@ def create_item(db: Session, item: schemas.itembarang.ItemBarangCreate):
         image_path=save_path,
         faiss_index=faiss_index
     )
-    
+    item.image_id=image_id
     db_item = models.ItemBarang(**item.dict(exclude={"image","image2","image3"}))
     db.add(db_item)
     db_item_image = models.ItemImage(**new_item_image.dict())
