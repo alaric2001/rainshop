@@ -169,7 +169,13 @@
                                     <hr/>
                                 </b-col>
                             </b-row>
-                            <b-button class="btn btn-info ml-5"  @click="saveOrder(true)"><i class="fa fa-printer"></i><span>Print Struk</span></b-button>
+                            <b-row>
+                                <b-button class="btn btn-info ml-5"  @click="saveOrder()"><i class="fa fa-save"></i> &nbsp;<span>save</span></b-button>
+                                <b-button class="btn btn-info ml-5"  @click="printStruk()"><i class="fa fa-print"></i> &nbsp;<span>Print Struk</span></b-button>
+                                <b-button class="btn btn-info ml-5"  @click="printTest()"><i class="fa fa-print"></i><span>Print Test</span></b-button>
+                                <b-button class="btn btn-info ml-5"  @click="printDebug()"><i class="fa fa-print"></i><span>Print Debug</span></b-button>
+
+                            </b-row>
 
                         </div>
                         <!-- end of total -->
@@ -403,6 +409,9 @@ export default {
             tdClass: "text-center"
           },
       ],
+        frmdata:{
+            paid_amount:0, totalitem:'', sales_total:0, change_amount:0
+        },
         selectedItem:null,
         itemList: [],
         menuIdx: 0,
@@ -512,75 +521,156 @@ export default {
             this.frmdata.sales_total = total;
 
             this.$forceUpdate();
-        },
-        saveOrder: async function(send2kitchen) {
-            // if (this.modeViewOnly==true) {
-            //     toastr.error('View Only, No Data Change allowed');
-            //     return;
-            // } 
+    },
+    saveOrder: async function() {
+        // if (this.modeViewOnly==true) {
+        //     toastr.error('View Only, No Data Change allowed');
+        //     return;
+        // } 
+        try {
             this.hitungTotal();
-            try {
-                const data = {};
-                const keys = ['sales_id','sales_no','sales_total','sales_paym','totalitem'];
-                for (var key in this.frmdata) {
-                    if (keys.indexOf(key) >= 0 && this.frmdata[key]) {
+            const data = {};
+            const keys = ['sales_id','sales_no','sales_total','sales_paym','totalitem'];
+            for (var key in this.frmdata) {
+                if (keys.indexOf(key) >= 0 && this.frmdata[key]) {
                     data[key] = this.frmdata[key];
                 }
-                data.lineorder =  this.lineorder.reduce((newArr, item) => {
-                                    newArr.push(item);
-                                        return newArr;
-                                }, []);
-                let baru=false;
-                if (!(this.frmdata.sales_id)) {
-                    baru=true;
-                }                        
-                if (frm.sales_id) {
-                    toastr.info(`calling POST  ${process.env.VUE_APP_BASE_API}/print-struk`)
-                    console.log(`calling POST  ${process.env.VUE_APP_BASE_API}/print-struk`);
-                    sales.printStruk(data).then(()=>{
-                        console.log(`DONE calling ${process.env.VUE_APP_BASE_API}/print-struk`);
-                    })
-                    return 
-                }  else {
-                    const result = await sales.save(data);
-                    // console.log('result : ', result);
-                    this.frmdata.sales_id=result.data.sales_id;
-                    this.frmdata.sales_no=result.data.sales_no;
-                    this.frmdata.sales_time=result.data.sales_time;
-                    data.sales_id=result.data.sales_id;
-                    data.sales_no=result.data.sales_no;
-                    data.sales_time=result.data.sales_time;
-                }
-
-                if (baru==true){
-                    toastr.success(`Order Saved, Number.${this.frmdata.sales_no}`);
-                } else {
-                    toastr.success(`Order Change Saved`);
-                }
-            } catch (error) {
-                console.log('error : ', error);
-                if (error.sql) {
-                    toastr.error(error.sql, 'ERROR MESSAGE', 10000);
-                } else if (error.sqlMessage) {
-                    toastr.error(error.sqlMessage, 'ERROR MESSAGE', 10000);
-                } else if (error.message) {
-                    toastr.error(error.message, 'ERROR MESSAGE', 10000);
-                } else {
-                    toastr.error(JSON.stringify(error), 'ERROR MESSAGE', 10000);
-                }        
             }
-        },
-        cancelOrder: function() {
-            // clear frmdata
-            for(const key in this.frmdata){
-                this.frmdata[key] = '';
+            data.lineorder =  this.lineorder.reduce((newArr, item) => {
+                                newArr.push(item);
+                                    return newArr;
+                            }, []);
+            let baru=false;
+            if (!(this.frmdata.sales_id)) {
+                baru=true;
+            }                        
+            if (frm.sales_id) {
+                toastr.info(`calling POST  ${process.env.VUE_APP_BASE_API}/print-struk`)
+                console.log(`calling POST  ${process.env.VUE_APP_BASE_API}/print-struk`);
+                sales.printStruk(data).then(()=>{
+                    console.log(`DONE calling ${process.env.VUE_APP_BASE_API}/print-struk`);
+                })
+                return 
+            }  else {
+                const result = await sales.save(data);
+                // console.log('result : ', result);
+                this.frmdata.sales_id=result.data.sales_id;
+                this.frmdata.sales_no=result.data.sales_no;
+                this.frmdata.sales_time=result.data.sales_time;
+                data.sales_id=result.data.sales_id;
+                data.sales_no=result.data.sales_no;
+                data.sales_time=result.data.sales_time;
             }
-            this.frmdata.sales_id='';
 
-            this.lineorder = [];
-            this.frmdata.subtotal = 0;
-            this.frmdata.dpp = 0;
-        },
+            if (baru==true){
+                toastr.success(`Order Saved, Number.${this.frmdata.sales_no}`);
+            } else {
+                toastr.success(`Order Change Saved`);
+            }
+
+        } catch (error) {
+            console.log('error : ', error);
+            if (error.sql) {
+                toastr.error(error.sql, 'ERROR MESSAGE', 10000);
+            } else if (error.sqlMessage) {
+                toastr.error(error.sqlMessage, 'ERROR MESSAGE', 10000);
+            } else if (error.message) {
+                toastr.error(error.message, 'ERROR MESSAGE', 10000);
+            } else {
+                toastr.error(JSON.stringify(error), 'ERROR MESSAGE', 10000);
+            }        
+        }
+    },
+    printDebug: async function() {
+        // if (this.modeViewOnly==true) {
+        //     toastr.error('View Only, No Data Change allowed');
+        //     return;
+        // } 
+        try {
+            this.hitungTotal();
+            const data = {};
+            const keys = ['sales_id','sales_no','sales_total','sales_paym','totalitem'];
+            for (var key in this.frmdata) {
+                if (keys.indexOf(key) >= 0 && this.frmdata[key]) {
+                    data[key] = this.frmdata[key];
+                }
+            }
+            data.lineorder =  this.lineorder.reduce((newArr, item) => {
+                                newArr.push(item);
+                                    return newArr;
+                            }, []);
+                toastr.info(`calling POST  ${process.env.VUE_APP_BASE_API}/print-struk`)
+                console.log(`calling POST  ${process.env.VUE_APP_BASE_API}/print-struk`);
+                sales.printDebug(data).then(()=>{
+                    console.log(`DONE calling ${process.env.VUE_APP_BASE_API}/print-debug`);
+                })
+        } catch (error) {
+            console.log('error : ', error);
+            if (error.sql) {
+                toastr.error(error.sql, 'ERROR MESSAGE', 10000);
+            } else if (error.sqlMessage) {
+                toastr.error(error.sqlMessage, 'ERROR MESSAGE', 10000);
+            } else if (error.message) {
+                toastr.error(error.message, 'ERROR MESSAGE', 10000);
+            } else {
+                toastr.error(JSON.stringify(error), 'ERROR MESSAGE', 10000);
+            }        
+        }
+    },
+    printStruk: async function() {
+        // if (this.modeViewOnly==true) {
+        //     toastr.error('View Only, No Data Change allowed');
+        //     return;
+        // } 
+        try {
+            this.hitungTotal();
+            const data = {};
+            const keys = ['sales_id','sales_no','sales_total','sales_paym','totalitem'];
+            for (var key in this.frmdata) {
+                if (keys.indexOf(key) >= 0 && this.frmdata[key]) {
+                    data[key] = this.frmdata[key];
+                }
+            }
+            data.lineorder =  this.lineorder.reduce((newArr, item) => {
+                                newArr.push(item);
+                                    return newArr;
+                            }, []);
+                toastr.info(`calling POST  ${process.env.VUE_APP_BASE_API}/print-struk`)
+                console.log(`calling POST  ${process.env.VUE_APP_BASE_API}/print-struk`);
+                sales.printStruk(data).then(()=>{
+                    console.log(`DONE calling ${process.env.VUE_APP_BASE_API}/print-struk`);
+                })
+        } catch (error) {
+            console.log('error : ', error);
+            if (error.sql) {
+                toastr.error(error.sql, 'ERROR MESSAGE', 10000);
+            } else if (error.sqlMessage) {
+                toastr.error(error.sqlMessage, 'ERROR MESSAGE', 10000);
+            } else if (error.message) {
+                toastr.error(error.message, 'ERROR MESSAGE', 10000);
+            } else {
+                toastr.error(JSON.stringify(error), 'ERROR MESSAGE', 10000);
+            }        
+        }
+    },
+    printTest: async function() {
+        sales.printTest({text:moment().format('ddd, DD MMM YYYY HH:mm')}).then(()=>{
+            console.log(`DONE calling ${process.env.VUE_APP_BASE_API}/print-test`);
+        })
+    },
+
+    cancelOrder: function() {
+        // clear frmdata
+        for(const key in this.frmdata){
+            this.frmdata[key] = '';
+        }
+        this.frmdata.sales_id='';
+
+        this.lineorder = [];
+        this.frmdata.subtotal = 0;
+        this.frmdata.dpp = 0;
+    },
+
   },
 };
 </script>

@@ -103,13 +103,13 @@ async def print_struk(data: SalesForm):
     printer.set(align='center')
     printer.text("\n")
     printer.text("Terima Kasih\n")
-    printer.text(now.format("ddd, YYYY-MM-DD HH:mm"))
+    printer.text(now.format("ddd, DD MMM YYYY HH:mm"))
     printer.cut()    # lakukan konversi Data menjadi text yg siap cetak
     return {"status": "success", "message": "Printed successfully"}
 
 
 @router.post("/print-test")
-async def print_struk(text: PrintData):
+async def print_struk(data: PrintData):
     now = moment.now()
 
     printer = Serial(devfile='COM5', baudrate=9600, timeout=1)  # Ganti dengan COM port printer kamu
@@ -122,7 +122,6 @@ async def print_struk(text: PrintData):
     printer.text("Jl.Rawa Pulo No 101 RT01/08\n")
     printer.text("Ds.RawaPanjang - Bojong Gede\n")
     printer.text(line_separator)
-    printer.text(text)
-    printer.text(now.format("ddd, YYYY-MM-DD HH:mm"))
+    printer.text(data.text)
 
     return {"status": "success", "message": "Printed successfully"}
