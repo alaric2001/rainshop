@@ -131,6 +131,7 @@ def search_items(db: Session, image: str):
         raise HTTPException(status_code=500, detail=f"Error Search Vector Image: {str(e)}")
 
 
+
 def update_item(db: Session, item_id: str, frm: schemas.itembarang.ItemBarangUpdate):
  try:    
     item = db.query(models.ItemBarang).filter_by(item_id=item_id).first()
@@ -162,15 +163,18 @@ def get_item(db: Session, item_id: str):
 def get_all_items(db: Session, item_name: str="", skip: int = 0, limit: int = 10):
     filters = []
     if item_name:
+        print ("cari item: ", item_name);
         if '%' in item_name:
             filters.append(models.ItemBarang.item_name.ilike(item_name))
         else:
             filters.append(models.ItemBarang.item_name.ilike(f"%{item_name}%"))
 
-    query = db.query(models.ItemBarang).offset(skip).limit(limit)
+    query = db.query(models.ItemBarang)
 
     if filters:
-        query = query.filter(*filters)
+        query = query.filter(*filters).offset(skip).limit(limit)
+    else:
+        query = query.offset(skip).limit(limit)
 
     return query.all()
 

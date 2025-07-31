@@ -17,6 +17,10 @@ def get_db():
 def create_image(frm: schemas.item_images.ItemImageForm, db: Session = Depends(get_db)):
     return crud.item_images.create_image(db, frm)
 
+@router.post("/search", response_model=List[schemas.vw_itembarang.VwItemBarangOut])
+def search_image(payload: schemas.itembarang.ImageSearchRequest, db: Session = Depends(get_db)):
+    return crud.item_images.search_image(db, payload.image)
+
 
 @router.put("/{image_id}")
 def update_image(image_id: str, frm: schemas.item_images.ItemImageUpdate, db: Session = Depends(get_db)):
@@ -31,7 +35,6 @@ def update_image(image_id: str, frm: schemas.item_images.ItemImageUpdate, db: Se
 
 @router.get("/{image_id}")
 def get_image(image_id: str, db: Session = Depends(get_db)):
-    print ('download image: ',image_id)
     return crud.item_images.get_image(db, image_id)
 
 @router.get("/by-item/{item_id}", response_model=List[schemas.item_images.ItemImageOut])

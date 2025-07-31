@@ -26,15 +26,16 @@ export default {
     list(obj = {}) {
         return new Promise(async (resolve, reject) => {
             try {
-                // const keys = ['page', 'limit', 'sortBy', 'sortDir', 'menuname', 'categid', 'categname'];
+                // const keys = ['page', 'limit', 'sortBy', 'sortDir', 'item_name', 'item_stock', 'item_stock_opr'];
+                const keys = ['item_name'];
 
                 let str = '';
-                // for (const key in obj) {
-                //     if (keys.indexOf(key) >= 0 && obj[key]) {
-                //         str += str ? '&' : '?';
-                //         str += key + '=' + encodeURIComponent(obj[key]);
-                //     }
-                // }
+                for (const key in obj) {
+                    if (keys.indexOf(key) >= 0 && obj[key]) {
+                        str += str ? '&' : '?';
+                        str += key + '=' + encodeURIComponent(obj[key]);
+                    }
+                }
 
                 const url = `/items${str}`;
                 const { data } = await axios.get(url);
@@ -107,7 +108,17 @@ export default {
             }
         });
     },
-    itemImage(id) {
+    imageSearch(obj) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const {data} = await axios.post('/images/search', obj);
+                resolve(data);
+            } catch (error) {
+                errorHandler(error, reject);
+            }
+        });
+    },
+    imageItem(id) {
         return new Promise(async (resolve, reject) => {
             try {
                 const {data} = await axios.get(`images/${id}`);

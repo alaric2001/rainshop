@@ -81,6 +81,25 @@ def update_image(db: Session, image_id: str, image: str):
     traceback.print_exc()
     raise HTTPException(status_code=500, detail=f"Error saat update gambar: {str(e)}")
 
+def search_image(db: Session, image: str):
+    try:
+        image_data = base64.b64decode(image.split(",")[1])    
+        img = Image.open(BytesIO(image_data))
+        vector = preprocess_image(img)
+        D, I = faiss_search(vector)   
+         
+        similar_items = []
+        for idx in I[0]:
+            getitem = db.query(models.VwItemBarang).filter(models.VwItemBarang.faiss_index == idx).first()
+            if getitem:
+                if not any(item.item_id == getitem.item_id for item in similar_items):
+                    similar_items.append(getitem)
+
+        return similar_items
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Error Search Vector Image: {str(e)}")
+
 def get_image(db: Session, image_id: str):
     getitem = db.query(models.VwItemBarang).filter(models.VwItemBarang.image_id == image_id).first()
     if getitem:

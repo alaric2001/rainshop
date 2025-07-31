@@ -1,10 +1,10 @@
 <template>
   <div class="animated fadeIn list-item">
     <b-card v-show="showList">
-      <div slot="header">Restaurant Menu  
+      <div slot="header">DAFTAR ITEM BARANG  
         <div class="card-header-actions">
           <b-button variant="primary mr-1" @click="add">Add</b-button>
-          <b-button variant="primary mr-1" @click="exportxls()"><i class="fa fa-file-excel-o"></i>Export</b-button>-->
+          <b-button variant="primary mr-1" @click="exportxls()"><i class="fa fa-file-excel-o"></i>Export</b-button>
           <b-button variant="primary mr-1" @click="showFilter=!showFilter"><i class="fa fa-filter"></i> Filter</b-button> 
           <b-button variant="primary mr-1" @click="close()" > <i class="fa fa-close"></i> Close</b-button>
         </div>
@@ -159,7 +159,7 @@
                               <b-button variant="primary mr-1" @click="ShowCaptureCamera(imgIdx)">Edit <i class="fa fa-camera"></i></b-button>
                           </b-input-group-append>                    
                       </b-input-group>
-                      <img :src="row.image" class="img-fluid" alt />
+                      <img :src="row.image" :key="row.image" class="img-fluid" alt />
                   </b-col>
               </b-row>
                <CameraCapture v-else @image-captured="handleImageCaptured" class="mb-2"/>
@@ -426,11 +426,18 @@ export default {
       try {
         const dataSvr = await items.detail(this.model)
         this.images = dataSvr.images;
-        for (let index = 0; index < this.images.length; index++) {
-          const el = this.images[index];
-          const imgBase64 = await items.itemImage(el.image_id)
-          el.image=imgBase64          
-        }        
+        // for (let index = 0; index < this.images.length; index++) {
+        //   const el = this.images[index];
+        //   const imgBase64 = await items.imageItem(el.image_id)
+        //   el.image=imgBase64          
+        // }        
+        this.images.forEach(el => {
+          el.image='';
+          items.imageItem(el.image_id).then((imgBase64) => {
+            el.image=imgBase64          
+          })
+        });
+
         if (this.images.length<2) {
            for (let index = this.images.length; index < 3; index++) {
             this.images.push({})

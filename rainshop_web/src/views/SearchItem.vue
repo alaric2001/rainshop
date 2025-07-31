@@ -9,6 +9,7 @@
             ref="tblHasil"
             responsive
             striped hover 
+            style="font-size:large;" 
             :items="searchResults"
             :fields="fields"
           >
