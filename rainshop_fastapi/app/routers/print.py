@@ -5,11 +5,10 @@ from pydantic import BaseModel
 
 import usb.core
 import usb.util
-
 import usb.backend.libusb1
 from escpos.printer import Usb,Serial
-from usb.backend import libusb1
-
+# from usb.backend import libusb1
+from app.config import PRINTER_LIBUSB_PATH  # Sesuaikan dengan path config.py kamu
 
 router = APIRouter()
 
@@ -67,7 +66,26 @@ async def receive_any_json(payload: Any = Body(...)):
 
 @router.post("/print-struk")
 async def print_struk(data: SalesForm):
-    printer = Serial(devfile='USB003', baudrate=9600, timeout=1)  # Ganti dengan COM port printer kamu
+
+    # backend = usb.backend.libusb1.get_backend(find_library=lambda x: "C:\\Users\\testl\\Documents\\RainShop\\rainshopGitHub\\rainshop\\rainshop_fastapi\\libusb-1.0.29\VS2022\\MS64\\dll\\libusb-1.0.dll")
+    backend = usb.backend.libusb1.get_backend(find_library=lambda x: PRINTER_LIBUSB_PATH)
+    # # Cari device printer
+    # dev = usb.core.find(backend=backend, find_all=True)
+    # for d in dev:
+    #     print(f"Vendor ID: {hex(d.idVendor)}, Product ID: {hex(d.idProduct)}")
+
+    try:
+        printer = Usb(0x0483, 0x70b, backend=backend)  # Gunakan vendor & product ID yang kamu temukan
+    except Exception as e:
+        return {"status": "error", "message": f"Gagal konek ke printer: {str(e)}"}
+
+    device = usb.core.find(idVendor=0x0483, idProduct=0x070b, backend=backend)
+    if device is None:
+        print("Printer not found")
+    else:
+        print("Printer found!")
+        print(f"Manufacturer: {usb.util.get_string(device, device.iManufacturer)}")
+
     
     now = moment.now()
     # Header
@@ -78,7 +96,7 @@ async def print_struk(data: SalesForm):
     printer.set(align='center', bold=False)
     printer.text("Jl.Rawa Pulo No 101 RT01/08\n")
     printer.text("Ds.RawaPanjang - Bojong Gede\n")
-    printer.text("------------------------\n")
+    printer.text("--------------------------------\n")
     # Detail Item
     printer.set(align='left')
     for row in data.lines:
@@ -88,7 +106,7 @@ async def print_struk(data: SalesForm):
         printer.text(qtyHarga)
 
     # Total
-    printer.text("------------------------\n")
+    printer.text("--------------------------------\n")
     printer.set(bold=True, align='right')
     printer.text(format_total("Total Belanja",data.sales_total))
     printer.text(format_total("Total Bayar",data.paid_amount))
@@ -100,6 +118,17 @@ async def print_struk(data: SalesForm):
     printer.text("Terima Kasih\n")
     printer.text(now.format("ddd, DD MMM YYYY HH:mm"))
     printer.cut()    # lakukan konversi Data menjadi text yg siap cetak
+
+    printer.text(f"{'Cara Bayar':<20}{data.sales_paym:<6}{'------':>10}\n")
+    printer.text(format_total("Total Bayar",data.paid_amount))
+    printer.text(format_total("Uang Kembali",data.change_amount))
+
+    # Footer
+    printer.set(align='center')
+    printer.text("\n")
+    printer.text(now.format("ddd, DD MMM YYYY HH:mm"))
+    printer.text("Terima Kasih\n\n")
+    printer.cut()
     return {"status": "success", "message": "Printed successfully"}
 
 
@@ -117,7 +146,8 @@ async def print_test():
         ]
     }
 
-    backend = usb.backend.libusb1.get_backend(find_library=lambda x: "C:\\Users\\testl\\Documents\\RainShop\\rainshopGitHub\\rainshop\\rainshop_fastapi\\libusb-1.0.29\VS2022\\MS64\\dll\\libusb-1.0.dll")
+    # backend = usb.backend.libusb1.get_backend(find_library=lambda x: "C:\\Users\\testl\\Documents\\RainShop\\rainshopGitHub\\rainshop\\rainshop_fastapi\\libusb-1.0.29\VS2022\\MS64\\dll\\libusb-1.0.dll")
+    backend = usb.backend.libusb1.get_backend(find_library=lambda x: PRINTER_LIBUSB_PATH)
     
     # Cari device printer
     dev = usb.core.find(backend=backend, find_all=True)
@@ -144,9 +174,8 @@ async def print_test():
     printer.set(align='center', bold=False)
     printer.text("Jl.Rawa Pulo No 101 RT01/08\n")
     printer.text("Ds.RawaPanjang - Bojong Gede\n")
-    printer.text("------------------------\n")
-    printer.text("Struk Pembelian\n")
-
+    printer.text("--------------------------------\n")
+    
     # Detail Item
     printer.set(align='left')
     for row in data["lines"]:
@@ -154,17 +183,18 @@ async def print_test():
         printer.text(format_harga(row['qty'], row['item_price'], row['subtotal']))
 
     # Total
-    printer.text("------------------------\n")
+    printer.text("--------------------------------\n")
     printer.set(bold=True, align='right')
     printer.text(format_total("Total Belanja", data["sales_total"]))
-    printer.text(f"{'CARABAYAR':<20}{'  ':>2}: {data['sales_paym']}\n")
+    printer.text(f"{'Cara Bayar':<20}{data['sales_paym']:<6}{'------':>10}\n")
     printer.text(format_total("Total Bayar", data["paid_amount"]))
     printer.text(format_total("Uang Kembali", data["change_amount"]))
 
     # Footer
     printer.set(align='center')
-    printer.text("\nTerima Kasih\n")
+    printer.text("\n")
     printer.text(now.format("ddd, DD MMM YYYY HH:mm"))
+    printer.text("Terima Kasih\n\n")
     printer.cut()
 
     return {"status": "success", "message": "Printed successfully"}

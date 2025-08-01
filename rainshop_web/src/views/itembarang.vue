@@ -250,9 +250,9 @@ import Loading from 'vue-loading-overlay';
 import myNumber from "../components/my-number";
 import CameraCapture from "../components/CameraCapture.vue";
 import CameraCapture3 from "../components/CameraCapture3.vue";
-import toastr from "mini-toastr";
 import { validationMixin } from "vuelidate";
 import { required} from "vuelidate/lib/validators";
+import toastr from "mini-toastr";
 toastr.init();
 
 export default {
@@ -313,7 +313,7 @@ export default {
       },
         frmdata: {
             item_name: '',
-            item_price: 1,
+            item_price: 0,
             item_stock: 1,
         },
       model:{},

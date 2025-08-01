@@ -9,22 +9,23 @@ import uuid
 
 def get_max_sales_no(db: Session) -> int:
     now = moment.now()
-    # print(now.format("YYYY-MM-DD HH:mm:ss"))
     result = db.execute(
         text("CALL usp_sales_nomorbaru(:sales_date)"),
         {"sales_date": now.format("YYYY-MM-DD")}
     )
-    row = result.fetchall()[0]
+    row = result.mappings().fetchone()
+    print ('nomor sales; ',row["sales_no"])
     return row["sales_no"]
 
 def create_sales(db: Session, frm: schemas.sales.SalesForm ):
  try:    
     objLines=[]
     sales_total=0
+    sales_id = str(uuid.uuid4())
     for row in frm.lines:
-        objLines.append(schemas.ItemImageCreate(
+        objLines.append(schemas.SalesLineBase(
             sales_line_id=str(uuid.uuid4()),
-            sales_id=header.sales_id,
+            sales_id=sales_id,
             item_id=row.item_id,
             item_price=row.item_price,
             qty=row.qty,
@@ -33,7 +34,8 @@ def create_sales(db: Session, frm: schemas.sales.SalesForm ):
         sales_total=sales_total+row.subtotal
 
     header = schemas.sales.SalesHeaderCreate (
-        sales_id = str(uuid.uuid4()),
+        sales_time = moment.now().date,
+        sales_id = sales_id,
         sales_no = str(get_max_sales_no(db)),
         sales_total=sales_total,
         sales_paym = frm.sales_paym,
@@ -46,7 +48,7 @@ def create_sales(db: Session, frm: schemas.sales.SalesForm ):
     db.commit()
     db.refresh(objHeader)
 
-    return { "status": True }
+    return { "status": True , "sales_no": header.sales_no, "sales_id": sales_id }
  except Exception as e:
     traceback.print_exc()
     raise HTTPException(status_code=500, detail=f"Error saat Create sales: {str(e)}")

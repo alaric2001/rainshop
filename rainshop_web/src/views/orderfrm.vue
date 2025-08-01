@@ -112,7 +112,7 @@
                                         <h6>{{ (m.qty*m.item_price) | numFormat('0,0.00') }}</h6>
                                     </b-td>
                                     <b-td class="text-right pt-3">
-                                            <a href="javascript:void(0)" class="text-danger" @click="deleteMenu(m, key)">
+                                            <a href="javascript:void(0)" class="text-danger" @click="deleteItem(m, key)">
                                                <h6><i class="fa fa-trash"></i></h6> 
                                             </a>
                                     </b-td>
@@ -136,7 +136,7 @@
                                     <h6>Total Belanja</h6>
                                 </b-col>
                                 <b-col col md="6" class="text-right pt-2" >
-                                    <h6>{{ frmdata.sales_total  | numFormat('0,0.00') }}</h6>
+                                    <h6 style="color: rgb(0, 119, 255);">{{ frmdata.sales_total  | numFormat('0,0.00') }}</h6>
                                     <hr/>
                                 </b-col>
                             </b-row>
@@ -157,7 +157,7 @@
                                     <h6>Uang Pembayaran</h6>
                                 </b-col>
                                 <b-col col md="6" class="text-right">
-                                    <my-number class="form-control text-right" separator=","  :precision="2"  v-model="frmdata.paid_amount" :state="!$v.frmdata.paid_amount.$error" ></my-number>
+                                    <my-number class="form-control text-right pr-1" separator=","  :precision="2"  v-model="frmdata.paid_amount" :state="!$v.frmdata.paid_amount.$error" ></my-number>
                                 </b-col>
                             </b-row>
                             <b-row class="mt-2">
@@ -165,12 +165,12 @@
                                     <h6>Kembalian</h6>
                                 </b-col>
                                 <b-col col md="6" class="text-right">
-                                    <h6 style="color: rgb(0, 119, 255);">{{ frmdata.change_amount  | numFormat('0,0.00') }}</h6>
+                                    <h6 style="color: red;">{{ frmdata.change_amount  | numFormat('0,0.00') }}</h6>
                                     <hr/>
                                 </b-col>
                             </b-row>
                             <b-row class="justify-content-center">
-                                <b-button class="btn btn-info ml-1"  @click="saveOrder()"><i class="fa fa-save"></i> &nbsp;<span>save</span></b-button>
+                                <b-button class="btn btn-info ml-1"  @click="saveOrder(false)"><i class="fa fa-save"></i> &nbsp;<span>save</span></b-button>
                                 <b-button class="btn btn-info ml-1"  @click="printStruk()"><i class="fa fa-print"></i> &nbsp;<span>Print Struk</span></b-button>
                                 <b-button class="btn btn-info ml-1"  @click="printTest()"><i class="fa fa-print"></i> &nbsp;<span>Print Test</span></b-button>
                                 <b-button class="btn btn-info ml-1"  @click="printDebug()"><i class="fa fa-print"></i> &nbsp;<span>Print Debug</span></b-button>
@@ -382,6 +382,8 @@ import moment from 'moment';
 import { validationMixin } from 'vuelidate'
 import { required } from 'vuelidate/lib/validators'
 import myNumber from "../components/my-number";
+import toastr from "mini-toastr";
+toastr.init();
 
 export default {
   components: { myNumber,CameraCapture },
@@ -408,7 +410,7 @@ export default {
           },
       ],
         frmdata:{
-            paid_amount:0, totalitem:'', sales_total:0, change_amount:0
+            paid_amount:0, totalitem:'', sales_total:0, change_amount:0, sales_paym:'TUNAI'
         },
         selectedItem:null,
         itemList: [],
@@ -425,6 +427,13 @@ export default {
         printer:null,
 
     };
+  },
+  created: async function() {
+    this.$watch('frmdata.paid_amount', function(newval) {
+        if (newval==this.frmdata.paid_amount){
+            this.frmdata.change_amount = parseFloat(newval)-parseFloat(this.frmdata.sales_total);
+        }
+    });
   },
   methods: {
     async searchItem(imageData) {
@@ -490,6 +499,15 @@ export default {
         if (row.qty>1) row.qty -= 1;
         this.hitungTotal();
     },
+    deleteItem: function(item, idx) {
+        // if (this.modeViewOnly==true) {
+        //     toastr.error('View Only, No Data Change allowed');
+        //     return;
+        // } 
+        this.selectedItem = null;
+        this.lineorder.splice(idx, 1);
+        this.hitungTotal();
+    },
     hitungTotal: function(){
             let totalqty = 0, subtotal = 0, discval = 0, netto = 0, serviceval = 0, dpp=0, pb1val = 0, total = 0, paid_amount = 0;
             const total_qty_description = [];
@@ -518,9 +536,12 @@ export default {
             this.frmdata.netto = netto;
             this.frmdata.sales_total = total;
 
+            if (this.frmdata.paid_amount){
+                this.frmdata.change_amount = parseFloat(this.frmdata.paid_amount)-parseFloat(this.frmdata.sales_total);
+            }
             this.$forceUpdate();
     },
-    saveOrder: async function() {
+    saveOrder: async function(debug) {
         // if (this.modeViewOnly==true) {
         //     toastr.error('View Only, No Data Change allowed');
         //     return;
@@ -534,22 +555,25 @@ export default {
                     data[key] = this.frmdata[key];
                 }
             }
-            data.lineorder =  this.lineorder.reduce((newArr, item) => {
-                                newArr.push(item);
+            const keysLine = ['sales_id','sales_line_id','item_id','item_price','qty', 'subtotal','item_name'];
+            data.lines =  this.lineorder.reduce((newArr, item) => {
+                                const newitem={}
+                                for (var key in item) {
+                                    if (keysLine.indexOf(key) >= 0 && item[key]) {
+                                        newitem[key] = item[key];
+                                    }
+                                }
+                                newArr.push(newitem);
                                     return newArr;
                             }, []);
             let baru=false;
             if (!(this.frmdata.sales_id)) {
                 baru=true;
             }                        
-            if (frm.sales_id) {
-                toastr.info(`calling POST  ${process.env.VUE_APP_BASE_API}/print-struk`)
-                console.log(`calling POST  ${process.env.VUE_APP_BASE_API}/print-struk`);
-                sales.printStruk(data).then(()=>{
-                    console.log(`DONE calling ${process.env.VUE_APP_BASE_API}/print-struk`);
-                })
-                return 
-            }  else {
+            if (debug==true) {
+                await sales.saveDebug(data);
+
+            } else {
                 const result = await sales.save(data);
                 // console.log('result : ', result);
                 this.frmdata.sales_id=result.data.sales_id;
@@ -558,12 +582,13 @@ export default {
                 data.sales_id=result.data.sales_id;
                 data.sales_no=result.data.sales_no;
                 data.sales_time=result.data.sales_time;
-            }
 
-            if (baru==true){
-                toastr.success(`Order Saved, Number.${this.frmdata.sales_no}`);
-            } else {
-                toastr.success(`Order Change Saved`);
+                if (baru==true){
+                    toastr.success(`Order Saved, Number.${this.frmdata.sales_no}`);
+                } else {
+                    toastr.success(`Order Change Saved`);
+                }
+
             }
 
         } catch (error) {
@@ -593,12 +618,17 @@ export default {
                     data[key] = this.frmdata[key];
                 }
             }
-            data.lineorder =  this.lineorder.reduce((newArr, item) => {
-                                newArr.push(item);
+            const keysLine = ['sales_id','sales_line_id','item_id','item_price','qty', 'subtotal','item_name'];
+            data.lines =  this.lineorder.reduce((newArr, item) => {
+                                const newitem={}
+                                for (var key in item) {
+                                    if (keysLine.indexOf(key) >= 0 && item[key]) {
+                                        newitem[key] = item[key];
+                                    }
+                                }
+                                newArr.push(newitem);
                                     return newArr;
                             }, []);
-                toastr.info(`calling POST  ${process.env.VUE_APP_BASE_API}/print-struk`)
-                console.log(`calling POST  ${process.env.VUE_APP_BASE_API}/print-struk`);
                 sales.printDebug(data).then(()=>{
                     console.log(`DONE calling ${process.env.VUE_APP_BASE_API}/print-debug`);
                 })
@@ -629,8 +659,18 @@ export default {
                     data[key] = this.frmdata[key];
                 }
             }
-            data.lineorder =  this.lineorder.reduce((newArr, item) => {
-                                newArr.push(item);
+            // item_stock: Optional[int] = None
+            // isactive: Optional[bool] = None
+            // image_id: Optional[str] = None  
+            const keysLine = ['sales_id','sales_line_id','item_id','item_price','qty', 'subtotal','item_name'];
+            data.lines =  this.lineorder.reduce((newArr, item) => {
+                                const newitem={}
+                                for (var key in item) {
+                                    if (keysLine.indexOf(key) >= 0 && item[key]) {
+                                        newitem[key] = item[key];
+                                    }
+                                }
+                                newArr.push(newitem);
                                     return newArr;
                             }, []);
                 toastr.info(`calling POST  ${process.env.VUE_APP_BASE_API}/print-struk`)

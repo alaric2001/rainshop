@@ -17,8 +17,8 @@ def get_db():
 def create_item(frm: schemas.sales.SalesForm, db: Session = Depends(get_db)):
     return crud.sales.create_sales(db, frm)
 
-# @router.post("/")
-# async def receive_any_json(payload: Any = Body(...)):
-#     print("Received payload:", payload)  # Debug log
-#     return {"received": payload}
+@router.post("/debug")
+async def receive_any_json(payload: Any = Body(...)):
+    print("Received payload:", payload)  # Debug log
+    return {"received": payload}
 

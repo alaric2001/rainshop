@@ -68,6 +68,16 @@ export default {
             }
         });
     },
+    saveDebug(obj) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const resp = await axios.post('/sales/debug', obj);
+                resolve(resp);
+            } catch (error) {
+                errorHandler(error, reject);
+            }
+        });
+    },
     update(obj) {
         return new Promise(async (resolve, reject) => {
             try {

@@ -13,7 +13,7 @@ class SalesLineBase(BaseModel):
     sales_line_id: str
     sales_id: str
     item_id: str
-    item_price: Optional[float] = None
+    item_price: float
     qty: int
     subtotal: Optional[float] = None
 
@@ -25,12 +25,12 @@ class VwSalesLineBase(BaseModel):
     item_name: str
     
 class VwSalesLine(VwSalesLineBase):
-    sales_line_id: str
-    sales_id: str
+    sales_line_id: Optional[str] = None
+    sales_id: Optional[str] = None
     item_id: str
-    item_price: Optional[float] = None
+    item_price: float
     qty: int
-    subtotal: Optional[float] = None
+    subtotal: float
     item_name: str
     item_price_skrg: Optional[float] = None
     item_stock: Optional[int] = None
@@ -41,12 +41,6 @@ class VwSalesLine(VwSalesLineBase):
 class SalesHeaderCreate(SalesHeaderBase):
     sales_id: Optional[str] = None
 
-class SalesLineCreate(SalesHeaderBase):
-    sales_id: Optional[str] = None
-    sales_line_id: Optional[str] = None
-    item_stock: Optional[int] = None
-    isactive: Optional[bool] = None
-    image_id: Optional[str] = None  
 
 class SalesForm(SalesHeaderBase):
     sales_id: Optional[str] = None

@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 from app.routers.itembarang import router as item_router
 from app.routers.item_images import router as image_router
+from app.routers.sales import router as sales_router
 from app.routers.print import router as print_router
 
 from app.database import Base, engine
 from fastapi.middleware.cors import CORSMiddleware  # <-- Tambahkan ini
-
 
 Base.metadata.create_all(bind=engine)
 
@@ -29,6 +29,7 @@ def on_startup():
 
 app.include_router(item_router)
 app.include_router(image_router)
+app.include_router(sales_router)
 app.include_router(print_router) #printer Alternatif Tanpa pybluez
 
 # --- Endpoint Utama ---

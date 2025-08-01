@@ -2,28 +2,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from app.config import DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME# Sesuaikan dengan path config.py kamu
 
-# from dotenv import load_dotenv # Import load_dotenv
-
-# from dotenv import load_dotenv
-import os
-
-# Muat variabel lingkungan file .env
-# load_dotenv()
-from os.path import join, dirname
-from dotenv import load_dotenv
-
-dotenv_path = join(dirname(__file__), '.env')
-load_dotenv(dotenv_path)
-
-
-# --- Konfigurasi Database dari Variabel Lingkungan ---
-# Mengambil nilai dari .env atau menggunakan default jika tidak ditemukan
-DB_HOST = os.getenv('DB_HOST', "localhost")
-DB_PORT = os.getenv("DB_PORT", "3306") # Default MySQL port
-DB_USER = os.getenv("DB_USER", "root")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "")
-DB_NAME = os.getenv("DB_NAME", "rainshop")
 
 # --- Print untuk Logging ---
 print(f"DB_HOST: {DB_HOST}")
