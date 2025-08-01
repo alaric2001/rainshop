@@ -99,6 +99,7 @@ async def print_struk(data: SalesForm):
     printer.text("Jl.Rawa Pulo No 101 RT01/08\n")
     printer.text("Ds.RawaPanjang - Bojong Gede\n")
     printer.text("--------------------------------\n")
+    printer.text(f"Struk Pembelian {data.sales_no}\n")
     # Detail Item
     printer.set(align='left')
     for row in data.lines:
