@@ -5,3 +5,5 @@ rainshop_fastapi/**/*.pyc
 
 rainshop_web/node_modules
 rainshop_web/dist
+
+rainshop_fastapi/app/.env

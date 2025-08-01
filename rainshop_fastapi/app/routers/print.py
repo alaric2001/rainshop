@@ -1,10 +1,14 @@
+import moment
 from fastapi import APIRouter, Body
 from typing import Optional, List, Any
 from pydantic import BaseModel
-from escpos.printer import Serial
-import moment
 
-BT_ADDRESS = '';
+import usb.core
+import usb.util
+
+import usb.backend.libusb1
+from escpos.printer import Usb,Serial
+from usb.backend import libusb1
 
 
 router = APIRouter()
@@ -56,14 +60,14 @@ def format_total(label: str, total: float):
 #     result = print_blutooth(BT_ADDRESS,data.text)
 #     return result
 
-# @router.post("/print-debug")
-# async def receive_any_json(payload: Any = Body(...)):
-#     print("Received payload:", payload)  # Debug log
-#     return {"received": payload}
+@router.post("/print-debug")
+async def receive_any_json(payload: Any = Body(...)):
+    print("Received payload:", payload)  # Debug log
+    return {"received": payload}
 
 @router.post("/print-struk")
 async def print_struk(data: SalesForm):
-    printer = Serial(devfile='COM5', baudrate=9600, timeout=1)  # Ganti dengan COM port printer kamu
+    printer = Serial(devfile='USB003', baudrate=9600, timeout=1)  # Ganti dengan COM port printer kamu
     
     now = moment.now()
     # Header
@@ -112,7 +116,27 @@ async def print_test():
             {"item_name": "DIY Puzzle Form Besar", "item_price": 25000, "qty": 1, "subtotal": 25000}
         ]
     }    
-    printer = Serial(devfile='COM5', baudrate=9600, timeout=1)  # Ganti dengan COM port printer kamu
+
+    backend = usb.backend.libusb1.get_backend(find_library=lambda x: "C:\\Users\\testl\\Documents\\RainShop\\rainshopGitHub\\rainshop\\rainshop_fastapi\\libusb-1.0.29\VS2022\\MS64\\dll\\libusb-1.0.dll")
+    
+    # # Cari device printer
+    # dev = usb.core.find(backend=backend, find_all=True)
+    # for d in dev:
+    #     print(f"Vendor ID: {hex(d.idVendor)}, Product ID: {hex(d.idProduct)}")
+
+    # printer = Serial(devfile='USB003')  # Ganti dengan COM port printer kamu
+    
+    try:
+        printer = Usb(0x0483, 0x70b, backend=backend)  # Gunakan vendor & product ID yang kamu temukan
+    except Exception as e:
+        return {"status": "error", "message": f"Gagal konek ke printer: {str(e)}"}
+
+    device = usb.core.find(idVendor=0x0483, idProduct=0x070b, backend=backend)
+    if device is None:
+        print("Printer not found")
+    else:
+        print("Printer found!")
+        print(f"Manufacturer: {usb.util.get_string(device, device.iManufacturer)}")
 
     # Header
     printer.set(align='center', bold=True, width=2, height=2)
