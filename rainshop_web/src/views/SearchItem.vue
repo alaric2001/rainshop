@@ -165,7 +165,7 @@ export default {
         console.log('searchItem response.data: ', this.searchResults);
       } catch (error) {
         console.error("Error searching item:", error);
-        alert("Gagal mencari item!");
+        toastr.error("Gagal mencari item!");
       }
     },
   },

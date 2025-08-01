@@ -98,10 +98,10 @@ export default {
             }
         });
     },
-    printTest(obj) {
+    printTest() {
         return new Promise(async (resolve, reject) => {
             try {
-                const resp = await axios.post('/print-test', obj);
+                const resp = await axios.get('/print-test');
                 resolve(resp);
             } catch (error) {
                 errorHandler(error, reject);

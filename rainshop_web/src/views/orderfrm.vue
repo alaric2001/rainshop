@@ -172,11 +172,11 @@
                             <b-row>
                                 <b-button class="btn btn-info ml-5"  @click="saveOrder()"><i class="fa fa-save"></i> &nbsp;<span>save</span></b-button>
                                 <b-button class="btn btn-info ml-5"  @click="printStruk()"><i class="fa fa-print"></i> &nbsp;<span>Print Struk</span></b-button>
-                                <b-button class="btn btn-info ml-5"  @click="printTest()"><i class="fa fa-print"></i><span>Print Test</span></b-button>
-                                <b-button class="btn btn-info ml-5"  @click="printDebug()"><i class="fa fa-print"></i><span>Print Debug</span></b-button>
-
                             </b-row>
-
+                            <b-row>
+                                <b-button class="btn btn-info ml-5"  @click="printTest()"><i class="fa fa-print"></i> &nbsp;<span>Print Test</span></b-button>
+                                <b-button class="btn btn-info ml-5"  @click="printDebug()"><i class="fa fa-print"></i> &nbsp;<span>Print Debug</span></b-button>
+                            </b-row>
                         </div>
                         <!-- end of total -->
                     </div>
@@ -654,7 +654,7 @@ export default {
         }
     },
     printTest: async function() {
-        sales.printTest({text:moment().format('ddd, DD MMM YYYY HH:mm')}).then(()=>{
+        sales.printTest().then(()=>{
             console.log(`DONE calling ${process.env.VUE_APP_BASE_API}/print-test`);
         })
     },

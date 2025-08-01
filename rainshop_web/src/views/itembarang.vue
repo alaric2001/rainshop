@@ -353,11 +353,11 @@ export default {
         console.log("this.capturedImage2:",this.capturedImage2)
         console.log("this.capturedImage3:",this.capturedImage3)
         const response = await items.insert(frm);
-        alert("Item berhasil disimpan!");
+        toastr.success("Item berhasil disimpan!");
         // this.resetForm();
       } catch (error) {
         console.error("Error saving item:", error);
-        alert("Gagal menyimpan item!");
+        toastr.error("Gagal menyimpan item!");
       }
     }, 
     async submitEdit() {
@@ -365,11 +365,11 @@ export default {
         const frm = {...this.frmdata};
         frm.item_id=this.model.item_id;
         const response = await items.update(frm);
-        alert("Item berhasil disimpan!");
+        toastr.success("Item berhasil disimpan!");
         // this.resetForm();
       } catch (error) {
         console.error("Error saving item:", error);
-        alert("Gagal menyimpan item!");
+        toastr.error("Gagal menyimpan item!");
       }
     }, 
     async submitInsertGambar() {
@@ -378,10 +378,10 @@ export default {
         frm.item_id=this.model.item_id;
         await items.insertImage(frm);
         this.refresh();
-        alert("Item berhasil disimpan!");
+        toastr.success("Item berhasil disimpan!");
       } catch (error) {
         console.error("Error saving item:", error);
-        alert("Gagal menyimpan item!");
+        toastr.error("Gagal menyimpan item!");
       }
     }, 
     async submitEditGambar() {
@@ -398,11 +398,10 @@ export default {
             frm.item_id=this.model.item_id;
             await items.insertImage(frm);
         }
-        alert("Item berhasil disimpan!");
-        // this.resetForm();
+        toastr.success("Item berhasil disimpan!");
       } catch (error) {
         console.error("Error saving item:", error);
-        alert("Gagal menyimpan item!");
+        toastr.error("Gagal menyimpan item!", 'ERROR MESSAGE', 10000);
       }
     }, 
     rowClicked(record, index) {
