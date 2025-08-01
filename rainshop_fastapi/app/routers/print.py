@@ -100,6 +100,7 @@ async def print_struk(data: SalesForm):
     printer.text("Ds.RawaPanjang - Bojong Gede\n")
     printer.text("--------------------------------\n")
     printer.text(f"Struk Pembelian {data.sales_no}\n")
+    printer.text("--------------------------------\n")
     # Detail Item
     printer.set(align='left')
     for row in data.lines:
@@ -120,8 +121,8 @@ async def print_struk(data: SalesForm):
     # Footer
     printer.set(align='center')
     printer.text("\n")
-    printer.text(now.format("ddd, DD MMM YYYY HH:mm"))
-    printer.text("Terima Kasih\n\n")
+    printer.text(f"{now.format("ddd, DD MMM YYYY HH:mm")}\n")
+    printer.text("Terima Kasih\n\n\n")
     printer.cut()
     return {"status": "success", "message": "Printed successfully"}
 
