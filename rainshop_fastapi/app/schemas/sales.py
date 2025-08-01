@@ -44,6 +44,9 @@ class SalesHeaderCreate(SalesHeaderBase):
 
 class SalesForm(SalesHeaderBase):
     sales_id: Optional[str] = None
+    paid_amount: Optional[float] = None
+    change_amount: Optional[float] = None
+    totalitem: Optional[str] = None
     lines: List[VwSalesLine] = []  
 
 

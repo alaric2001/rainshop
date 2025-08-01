@@ -547,7 +547,7 @@ export default {
         try {
             this.hitungTotal();
             const data = {};
-            const keys = ['sales_id','sales_no','sales_total','sales_paym','totalitem'];
+            const keys = ['sales_id','sales_no','sales_total','sales_paym','totalitem', 'paid_amount', 'change_amount'];
             for (var key in this.frmdata) {
                 if (keys.indexOf(key) >= 0 && this.frmdata[key]) {
                     data[key] = this.frmdata[key];
