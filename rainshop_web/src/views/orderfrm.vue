@@ -169,13 +169,11 @@
                                     <hr/>
                                 </b-col>
                             </b-row>
-                            <b-row>
-                                <b-button class="btn btn-info ml-5"  @click="saveOrder()"><i class="fa fa-save"></i> &nbsp;<span>save</span></b-button>
-                                <b-button class="btn btn-info ml-5"  @click="printStruk()"><i class="fa fa-print"></i> &nbsp;<span>Print Struk</span></b-button>
-                            </b-row>
-                            <b-row>
-                                <b-button class="btn btn-info ml-5"  @click="printTest()"><i class="fa fa-print"></i> &nbsp;<span>Print Test</span></b-button>
-                                <b-button class="btn btn-info ml-5"  @click="printDebug()"><i class="fa fa-print"></i> &nbsp;<span>Print Debug</span></b-button>
+                            <b-row class="justify-content-center">
+                                <b-button class="btn btn-info ml-1"  @click="saveOrder()"><i class="fa fa-save"></i> &nbsp;<span>save</span></b-button>
+                                <b-button class="btn btn-info ml-1"  @click="printStruk()"><i class="fa fa-print"></i> &nbsp;<span>Print Struk</span></b-button>
+                                <b-button class="btn btn-info ml-1"  @click="printTest()"><i class="fa fa-print"></i> &nbsp;<span>Print Test</span></b-button>
+                                <b-button class="btn btn-info ml-1"  @click="printDebug()"><i class="fa fa-print"></i> &nbsp;<span>Print Debug</span></b-button>
                             </b-row>
                         </div>
                         <!-- end of total -->

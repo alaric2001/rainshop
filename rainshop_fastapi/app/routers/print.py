@@ -115,17 +115,15 @@ async def print_test():
             {"item_name": "DIY Poke Painting", "item_price": 8500, "qty": 2, "subtotal": 17000},
             {"item_name": "DIY Puzzle Form Besar", "item_price": 25000, "qty": 1, "subtotal": 25000}
         ]
-    }    
+    }
 
     backend = usb.backend.libusb1.get_backend(find_library=lambda x: "C:\\Users\\testl\\Documents\\RainShop\\rainshopGitHub\\rainshop\\rainshop_fastapi\\libusb-1.0.29\VS2022\\MS64\\dll\\libusb-1.0.dll")
     
-    # # Cari device printer
-    # dev = usb.core.find(backend=backend, find_all=True)
-    # for d in dev:
-    #     print(f"Vendor ID: {hex(d.idVendor)}, Product ID: {hex(d.idProduct)}")
+    # Cari device printer
+    dev = usb.core.find(backend=backend, find_all=True)
+    for d in dev:
+        print(f"Vendor ID: {hex(d.idVendor)}, Product ID: {hex(d.idProduct)}")
 
-    # printer = Serial(devfile='USB003')  # Ganti dengan COM port printer kamu
-    
     try:
         printer = Usb(0x0483, 0x70b, backend=backend)  # Gunakan vendor & product ID yang kamu temukan
     except Exception as e:
@@ -147,27 +145,26 @@ async def print_test():
     printer.text("Jl.Rawa Pulo No 101 RT01/08\n")
     printer.text("Ds.RawaPanjang - Bojong Gede\n")
     printer.text("------------------------\n")
+    printer.text("Struk Pembelian\n")
 
     # Detail Item
     printer.set(align='left')
     for row in data["lines"]:
-        namabarang = f"{row.item_name}\n"
-        printer.text(namabarang)
-        qtyHarga = format_harga(row.qty,row.item_price,row.subtotal)
-        printer.text(qtyHarga)
+        printer.text(f"{row['item_name']}\n")
+        printer.text(format_harga(row['qty'], row['item_price'], row['subtotal']))
 
     # Total
     printer.text("------------------------\n")
     printer.set(bold=True, align='right')
-    printer.text(format_total("Total Belanja",data.sales_total))
-    printer.text(f"{'CARABAYAR':<20}{'  ':>2}: TUNAI\n")
-    printer.text(format_total("Total Bayar",data.paid_amount))
-    printer.text(format_total("Uang Kembali",data.change_amount))
+    printer.text(format_total("Total Belanja", data["sales_total"]))
+    printer.text(f"{'CARABAYAR':<20}{'  ':>2}: {data['sales_paym']}\n")
+    printer.text(format_total("Total Bayar", data["paid_amount"]))
+    printer.text(format_total("Uang Kembali", data["change_amount"]))
 
     # Footer
     printer.set(align='center')
-    printer.text("\n")
-    printer.text("Terima Kasih\n")
+    printer.text("\nTerima Kasih\n")
     printer.text(now.format("ddd, DD MMM YYYY HH:mm"))
     printer.cut()
+
     return {"status": "success", "message": "Printed successfully"}
