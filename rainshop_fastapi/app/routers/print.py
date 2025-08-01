@@ -113,17 +113,7 @@ async def print_struk(data: SalesForm):
     printer.text(f"{data.totalitem}\n")
     printer.set(bold=True, align='right')
     printer.text(format_total("Total Belanja",data.sales_total))
-    printer.text(format_total("Total Bayar",data.paid_amount))
-    printer.text(format_total("Uang Kembali",data.change_amount))
-
-    # Footer
-    printer.set(align='center')
-    printer.text("\n")
-    printer.text("Terima Kasih\n")
-    printer.text(now.format("ddd, DD MMM YYYY HH:mm"))
-    printer.cut()    # lakukan konversi Data menjadi text yg siap cetak
-
-    printer.text(f"{'Cara Bayar':<20}{data.sales_paym:<6}{'------':>10}\n")
+    printer.text(f"{'CARABAYAR':<20}{data.sales_paym:<6}{'------':>6}\n")
     printer.text(format_total("Total Bayar",data.paid_amount))
     printer.text(format_total("Uang Kembali",data.change_amount))
 
@@ -136,8 +126,8 @@ async def print_struk(data: SalesForm):
     return {"status": "success", "message": "Printed successfully"}
 
 
-@router.get("/print-test")
-async def print_test():
+# @router.get("/print-test")
+# async def print_test():
     now = moment.now()
     data = {
         "sales_total": 47000,
