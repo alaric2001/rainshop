@@ -67,7 +67,7 @@
                                 </h6>         
                             </b-col>
                             <b-col cols="5">
-                                <div class="float-right">
+                                <div class="float-right" :key="frmdata.sales_no">
                                     No Struk: {{ frmdata.sales_no }}
                                 </div>
                             </b-col>
@@ -170,10 +170,8 @@
                                 </b-col>
                             </b-row>
                             <b-row class="justify-content-center">
-                                <b-button class="btn btn-info ml-1"  @click="saveOrder(false)"><i class="fa fa-save"></i> &nbsp;<span>save</span></b-button>
-                                <b-button class="btn btn-info ml-1"  @click="printStruk()"><i class="fa fa-print"></i> &nbsp;<span>Print Struk</span></b-button>
-                                <b-button class="btn btn-info ml-1"  @click="printTest()"><i class="fa fa-print"></i> &nbsp;<span>Print Test</span></b-button>
-                                <b-button class="btn btn-info ml-1"  @click="printDebug()"><i class="fa fa-print"></i> &nbsp;<span>Print Debug</span></b-button>
+                                <b-button class="btn btn-info ml-1"  @click="saveOrder()"><i class="fa fa-print"></i> &nbsp;<span>Print Struk</span></b-button>
+                                <b-button class="btn btn-info ml-1"  @click="printDebug()"><i class="fa fa-print"></i> &nbsp;<span> Debug</span></b-button>
                             </b-row>
                         </div>
                         <!-- end of total -->
@@ -410,7 +408,7 @@ export default {
           },
       ],
         frmdata:{
-            paid_amount:0, totalitem:'', sales_total:0, change_amount:0, sales_paym:'TUNAI'
+            sales_id:'', sales_no:'', paid_amount:0, totalitem:'', sales_total:0, change_amount:0, sales_paym:'TUNAI'
         },
         selectedItem:null,
         itemList: [],
@@ -569,7 +567,12 @@ export default {
             let baru=false;
             if (!(this.frmdata.sales_id)) {
                 baru=true;
-            }                        
+            }       
+
+            sales.printStruk(data).then(()=>{
+                console.log(`DONE calling ${process.env.VUE_APP_BASE_API}/print-struk`);
+            })
+
             if (debug==true) {
                 await sales.saveDebug(data);
 
@@ -578,10 +581,10 @@ export default {
                 // console.log('result : ', result);
                 this.frmdata.sales_id=result.data.sales_id;
                 this.frmdata.sales_no=result.data.sales_no;
-                this.frmdata.sales_time=result.data.sales_time;
+                // this.frmdata.sales_time=result.data.sales_time;
                 data.sales_id=result.data.sales_id;
                 data.sales_no=result.data.sales_no;
-                data.sales_time=result.data.sales_time;
+                // data.sales_time=result.data.sales_time;
 
                 if (baru==true){
                     toastr.success(`Order Saved, Number.${this.frmdata.sales_no}`);
@@ -631,52 +634,6 @@ export default {
                             }, []);
                 sales.printDebug(data).then(()=>{
                     console.log(`DONE calling ${process.env.VUE_APP_BASE_API}/print-debug`);
-                })
-        } catch (error) {
-            console.log('error : ', error);
-            if (error.sql) {
-                toastr.error(error.sql, 'ERROR MESSAGE', 10000);
-            } else if (error.sqlMessage) {
-                toastr.error(error.sqlMessage, 'ERROR MESSAGE', 10000);
-            } else if (error.message) {
-                toastr.error(error.message, 'ERROR MESSAGE', 10000);
-            } else {
-                toastr.error(JSON.stringify(error), 'ERROR MESSAGE', 10000);
-            }        
-        }
-    },
-    printStruk: async function() {
-        // if (this.modeViewOnly==true) {
-        //     toastr.error('View Only, No Data Change allowed');
-        //     return;
-        // } 
-        try {
-            this.hitungTotal();
-            const data = {};
-            const keys = ['sales_id','sales_no','sales_total','sales_paym','totalitem'];
-            for (var key in this.frmdata) {
-                if (keys.indexOf(key) >= 0 && this.frmdata[key]) {
-                    data[key] = this.frmdata[key];
-                }
-            }
-            // item_stock: Optional[int] = None
-            // isactive: Optional[bool] = None
-            // image_id: Optional[str] = None  
-            const keysLine = ['sales_id','sales_line_id','item_id','item_price','qty', 'subtotal','item_name'];
-            data.lines =  this.lineorder.reduce((newArr, item) => {
-                                const newitem={}
-                                for (var key in item) {
-                                    if (keysLine.indexOf(key) >= 0 && item[key]) {
-                                        newitem[key] = item[key];
-                                    }
-                                }
-                                newArr.push(newitem);
-                                    return newArr;
-                            }, []);
-                toastr.info(`calling POST  ${process.env.VUE_APP_BASE_API}/print-struk`)
-                console.log(`calling POST  ${process.env.VUE_APP_BASE_API}/print-struk`);
-                sales.printStruk(data).then(()=>{
-                    console.log(`DONE calling ${process.env.VUE_APP_BASE_API}/print-struk`);
                 })
         } catch (error) {
             console.log('error : ', error);
