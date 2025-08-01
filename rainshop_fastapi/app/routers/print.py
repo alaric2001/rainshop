@@ -34,6 +34,8 @@ class SalesForm(BaseModel):
     sales_no: Optional[str] = None
     sales_total: Optional[float] = None
     sales_paym: Optional[str] = "TUNAI"
+    paid_amount: Optional[float] = None
+    change_amount: Optional[float] = None
     totalitem: Optional[str] = None
     lines: List[SalesLine] = []  
 
@@ -107,6 +109,7 @@ async def print_struk(data: SalesForm):
 
     # Total
     printer.text("--------------------------------\n")
+    printer.text(f"{data.totalitem}\n")
     printer.set(bold=True, align='right')
     printer.text(format_total("Total Belanja",data.sales_total))
     printer.text(format_total("Total Bayar",data.paid_amount))
