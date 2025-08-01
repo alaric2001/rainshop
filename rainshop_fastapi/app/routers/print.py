@@ -31,7 +31,7 @@ class SalesLine(BaseModel):
 
 class SalesForm(BaseModel):
     sales_id: Optional[str] = None
-    sales_no: Optional[str] = None
+    sales_no: Optional[str] = ""
     sales_total: Optional[float] = None
     sales_paym: Optional[str] = "TUNAI"
     paid_amount: Optional[float] = None
