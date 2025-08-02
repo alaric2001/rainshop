@@ -1,8 +1,8 @@
 <template>
   <div>
     <b-row class="justify-content-center mb-2">
-        <video ref="video" width="640" height="480" autoplay muted></video>
-        <canvas ref="canvas" width="640" height="480" style="display: none;"></canvas>
+        <video ref="video" width="480" height="360" autoplay muted></video>
+        <canvas ref="canvas" width="480" height="360" style="display: none;"></canvas>
     </b-row>
     <b-row>
       <b-col lg="4">

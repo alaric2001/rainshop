@@ -91,7 +91,6 @@
     </b-modal>
     
     <b-modal v-model="showAddForm"  header-bg-variant="primary" title="Form Input -  Item Barang" size="lg" :centered="true" hide-footer >
-      <b-card>
             <CameraCapture3 @image-captured="handleImageCaptured" @image2-captured="handleImage2Captured" @image3-captured="handleImage3Captured" class="mb-2"/>
             
               <b-input-group>
@@ -112,12 +111,11 @@
                     </b-input-group>
                 </b-col>
             </b-row>                      
-            <b-row class="justify-content-center mb-2">
+            <b-row class="justify-content-center mt-1 mb-2">
                   <b-button class="btn btn-success mr-1" @click="submitItem">Simpan</b-button>
-                  <b-button class="btn btn-warning ml-1" @click="closeForm">Batal</b-button>
-                  <b-button class="btn btn-secondary ml-1" @click="resetForm">kosongkan</b-button>
+                  <b-button class="btn btn-secondary ml-2" @click="resetForm">Kosongkan/ Input Item lain</b-button>
+                  <b-button class="btn btn-warning ml-2" @click="closeForm">Tutup/Batal</b-button>
             </b-row>
-      </b-card>      
     </b-modal>
     <b-modal v-model="showEditItem"  header-bg-variant="primary" title="Form Edit -  Item Barang" size="lg" :centered="true" hide-footer >
       <b-card>

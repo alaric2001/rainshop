@@ -8,7 +8,7 @@ const routes = [
   { name:"app.input", path: "/input", component: require('./views/itembarang.vue').default },
   { name:"app.search", path: "/search", component: require('./views/SearchItem.vue').default },
   { name:"app.penjulan", path: "/penjualan", component: require('./views/orderfrm.vue').default },
-  { name:"app", path: "/", redirect: "/input" },  // Redirect ke input sebagai default
+  { name:"app", path: "/", redirect: "/penjualan" },  // Redirect ke input sebagai default
 ];
 
 export default {

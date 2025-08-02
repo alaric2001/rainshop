@@ -142,12 +142,12 @@
                             </b-row>
                             <b-row class="mt-3">
                                 <b-col col md="6" class="text-right">
-                                    <h6>Bayar pakai</h6>
+                                    <h6>Cara Bayar pakai</h6>
                                 </b-col>
                                 <b-col col md="6" >
                                     <b-form-radio-group  v-model="frmdata.sales_paym">
                                         <b-form-radio  value="TUNAI">UANG TUNAI</b-form-radio>
-                                        <b-form-radio  value="QRIS">QRIS</b-form-radio>
+                                        <b-form-radio  value="QRIS" class="ml-2">QRIS</b-form-radio>
                                     </b-form-radio-group>
 
                                 </b-col>
@@ -162,7 +162,7 @@
                             </b-row>
                             <b-row class="mt-2">
                                 <b-col col md="6" class="text-right">
-                                    <h6>Kembalian</h6>
+                                    <h6>Uang Kembalian</h6>
                                 </b-col>
                                 <b-col col md="6" class="text-right">
                                     <h6 style="color: red;">{{ frmdata.change_amount  | numFormat('0,0.00') }}</h6>
@@ -170,8 +170,8 @@
                                 </b-col>
                             </b-row>
                             <b-row class="justify-content-center">
-                                <b-button class="btn btn-info ml-1"  @click="saveOrder()"><i class="fa fa-print"></i> &nbsp;<span>Print Struk</span></b-button>
-                                <b-button class="btn btn-info ml-1"  @click="printDebug()"><i class="fa fa-print"></i> &nbsp;<span> Debug</span></b-button>
+                                <b-button variant="primary" class=" ml-1"  @click="saveOrder()"><i class="fa fa-print"></i> &nbsp;<span>Print Struk</span></b-button>
+                                <b-button variant="warning" class="ml-4"  @click="clearForm()"> &nbsp;<span> Kosongkan </span></b-button>
                             </b-row>
                         </div>
                         <!-- end of total -->
@@ -277,10 +277,10 @@
         overflow: scroll;
     }
     .sum-list {
-        max-height: 50%;
+        max-height: 800px;
         overflow: scroll;
         margin: 5px -5px;
-        min-width: 400px;
+        min-width: 600px;
     }
     .sum-list>ul {
         width: 100%;
@@ -654,16 +654,17 @@ export default {
         })
     },
 
-    cancelOrder: function() {
+    clearForm: function() {
         // clear frmdata
         for(const key in this.frmdata){
             this.frmdata[key] = '';
         }
+        this.frmdata.totalitem='';
+        this.frmdata.totalqty='';
+        this.frmdata.sales_no='';
         this.frmdata.sales_id='';
-
         this.lineorder = [];
-        this.frmdata.subtotal = 0;
-        this.frmdata.dpp = 0;
+        this.hitungTotal()
     },
 
   },
