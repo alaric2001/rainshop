@@ -26,8 +26,8 @@ export default {
     list(obj = {}) {
         return new Promise(async (resolve, reject) => {
             try {
-                // const keys = ['page', 'limit', 'sortBy', 'sortDir', 'item_name', 'item_stock', 'item_stock_opr'];
-                const keys = ['item_name'];
+                const keys = ['page', 'limit', 'sortBy', 'sortDir', 'item_name', 'item_stock'];
+                // const keys = ['page', 'limit','item_name'];
 
                 let str = '';
                 for (const key in obj) {
@@ -39,10 +39,8 @@ export default {
 
                 const url = `/items${str}`;
                 const { data } = await axios.get(url);
-                // const { meta, list } = data;
-                // obj.total = meta.total;            
-                // resolve(list);
-                resolve(data);
+                obj.total = data.total;
+                resolve(data.data);
             } catch (error) {
                 errorHandler(error, reject);
             }

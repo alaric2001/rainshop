@@ -32,10 +32,17 @@ def create_item(item: schemas.itembarang.ItemBarangCreate, db: Session = Depends
 def update_item(item_id: str, frm: schemas.itembarang.ItemBarangUpdate, db: Session = Depends(get_db)):
     return crud.itembarang.update_item(db, item_id, frm)
 
-@router.get("/", response_model=List[schemas.itembarang.ItemBarangOut])
-def read_items(item_name: str = "", page: int = 1, limit: int = 10, db: Session = Depends(get_db)):
+@router.get("/", response_model=schemas.itembarang.PaginatedResponse[schemas.itembarang.ItemBarangOut])
+def read_items(item_name: str = "", page: int = 1, limit: int = 10, sortBy: str = "item_name", sortDir: str = "asc", item_stock: int = None, db: Session = Depends(get_db)):
     skip = (page - 1) * limit
-    return crud.itembarang.get_all_items(db, item_name, skip=skip, limit=limit)
+    items, total = crud.itembarang.get_all_items(db, item_name, skip=skip, limit=limit, sortBy=sortBy, sortDir=sortDir, item_stock=item_stock)
+    
+    return {
+        "data": items,
+        "total": total,
+        "page": page,
+        "limit": limit
+    }
 
 
 @router.get("/{item_id}", response_model=schemas.itembarang.ItemBarangOut)

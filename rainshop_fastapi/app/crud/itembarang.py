@@ -1,5 +1,5 @@
 import traceback
-from sqlalchemy import func
+from sqlalchemy import func,asc, desc
 from sqlalchemy.orm import Session, selectinload  # atau joinedload
 from fastapi import HTTPException
 from app import models, schemas
@@ -160,21 +160,44 @@ def get_item(db: Session, item_id: str):
     return schemas.itembarang.ItemBarangOut.model_validate(db_item)
     
 
-def get_all_items(db: Session, item_name: str="", skip: int = 0, limit: int = 10):
+
+def get_all_items(db: Session, item_name: str="", skip: int = 0, limit: int = 10, sortBy: str = "", sortDir: str = "", item_stock: int = None):
     filters = []
     if item_name:
-        print ("cari item: ", item_name);
         if '%' in item_name:
             filters.append(models.ItemBarang.item_name.ilike(item_name))
         else:
             filters.append(models.ItemBarang.item_name.ilike(f"%{item_name}%"))
+    print('item_stock:',item_stock)
+    if item_stock is not None:
+            filters.append(models.ItemBarang.item_stock < item_stock)
+
+
+    # Validasi kolom yang boleh di-sort
+    allowed_sort_fields = {
+        "item_name": models.ItemBarang.item_name,
+        "item_price": models.ItemBarang.item_price,
+        "item_stock": models.ItemBarang.item_stock,
+        "isactive": models.ItemBarang.isactive
+    }
+    # Ambil kolom yang valid
+    sort_column = allowed_sort_fields.get(sortBy, models.ItemBarang.item_name)
+    order_by_clause = None
+    if sort_column:
+        order_by_clause = asc(sort_column) if sortDir.lower() == "asc" else desc(sort_column)
 
     query = db.query(models.ItemBarang)
 
     if filters:
-        query = query.filter(*filters).offset(skip).limit(limit)
-    else:
-        query = query.offset(skip).limit(limit)
+        query = query.filter(*filters)
 
-    return query.all()
+    # Hitung total records (TANPA pagination)
+    total_count = query.count()
+    if order_by_clause is not None:
+        query.order_by(order_by_clause)
+
+    # Apply pagination
+    items = query.offset(skip).limit(limit).all()
+    
+    return items, total_count
 

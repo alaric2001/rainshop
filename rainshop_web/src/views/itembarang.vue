@@ -4,7 +4,6 @@
       <div slot="header">DAFTAR ITEM BARANG  
         <div class="card-header-actions">
           <b-button variant="primary mr-1" @click="add">Add</b-button>
-          <b-button variant="primary mr-1" @click="exportxls()"><i class="fa fa-file-excel-o"></i>Export</b-button>
           <b-button variant="primary mr-1" @click="showFilter=!showFilter"><i class="fa fa-filter"></i> Filter</b-button> 
           <b-button variant="primary mr-1" @click="close()" > <i class="fa fa-close"></i> Close</b-button>
         </div>
@@ -13,7 +12,9 @@
         <b-col lg="8">
             <b-input-group >
               <b-input-group-prepend><span class="pt-2">Item Name &nbsp;</span></b-input-group-prepend>
-              <b-form-input v-model="tblData.item_name" ></b-form-input>
+              <b-form-input v-model="tblData.item_name" style="width:30% !important;" ></b-form-input>
+              <b-input-group-prepend><span class="pt-2">stock kurang dari &nbsp;</span></b-input-group-prepend>
+              <b-form-input v-model="tblData.item_stock" ></b-form-input>
               <b-input-group-append>
                   <b-button class="btn btn-success ml-3" @click="search()" > <i class="fa fa-refresh"></i> Apply Filter</b-button>
               </b-input-group-append>
@@ -29,13 +30,10 @@
             responsive
             striped hover 
             style="font-size:smaller;" 
-            :items="data"
+            :items="tblDataItems"
             :fields="fields"
-            :current-page="tblData.page"
-            :per-page="tblData.limit"
             :sort-by.sync="tblData.sortBy"
             :sort-desc.sync="tblData.sortDesc"
-            :key="tblData.limit" 
             @row-clicked="rowClicked"
           >
 
@@ -53,8 +51,8 @@
           <template v-slot:cell(isactive)="data">
             <span v-if="(data.item.isactive==1)">Yes</span>
           </template>
-          <template v-slot:cell(modified)="data">
-            <span v-if="(data.item.modified)">{{ data.item.modified | moment("DD-MMM-YY") }}</span>
+          <template v-slot:cell(last_restock_time)="data">
+            <span v-if="(data.item.last_restock_time)">{{ data.item.last_restock_time | moment("DD-MMM-YYYY HH:mm") }}</span>
           </template>
           <template v-slot:cell(item_price)="data">
             {{(data.item.item_price)|numFormat}}
@@ -70,7 +68,7 @@
           </b-col>
           <b-col cols="4" >
               <b-form-group label-cols=3 label="Limit per page"  style="margin-top:0 !important;">
-              <b-form-select :options="[10, 15, 20, 25]" :plain="true" v-model="tblData.limit"  size="sm" style="width:80px;"/>
+              <b-form-input v-model="limit" type="number" class="mr-2" v-b-tooltip.hover :title="`${limit} records`" style="max-width:80px; !important;"></b-form-input>  
               </b-form-group>
           </b-col>        
           <b-col cols="4">            
@@ -289,25 +287,27 @@ export default {
             sortable: true
           },
           {
+            key: "last_restock_time",
+            thStyle: "width:120px",
+            label: "Stock Dihitung pd",
+            tdClass: "text-center"
+          },
+          {
             key: "isactive",
             thStyle: "width:100px",
             label: "Active",
             tdClass: "text-center",
             sortable: true
           },
-          {
-            key: "modified",
-            thStyle: "width:120px",
-            label: "Last Update",
-            tdClass: "text-center"
-          },
       ],
+      tblDataItems:[],
+      limit:10,
       tblData: {
         page: 1,
         limit: 10,
         total: 0,
         sortBy: null,
-        sortDesc: false, item_name:''
+        sortDesc: false, item_name:'', item_stock:''
       },
         frmdata: {
             item_name: '',
@@ -329,6 +329,26 @@ export default {
       activeStatus : [{ value: '', text: '-- ALL --' },, { value: '0', text: 'Yes' },{ value: '1', text: 'No' }],
       editImageIdx:''
     };
+  },
+  created: async function(){
+      setTimeout(() => {
+        this.data()        
+      }, 100);
+  },
+  watch: {
+    limit: function (newVal){
+      setTimeout(() => {
+        if (this.limit==newVal) {
+          this.tblData.limit=newVal;
+        }
+      }, 500);
+    },    
+    "tblData.page": function(newval) {
+      this.data();
+    },   
+    "tblData.limit": function(newval) {
+      this.data();
+    },   
   },
   methods: {
     handleImageCaptured(imageData) {
@@ -468,19 +488,35 @@ export default {
       this.capturedImage2=null
       this.capturedImage3=null
     },
-    data: async function(ctx) {
-      this.tblData.sortDir = this.tblData.sortDesc ? "desc" : "asc";
-      this.lkuLoading = true;
-      let list = await items.list(this.tblData);
-      this.lkuLoading = false;
-      return list;  
+    data: async function() {
+      try {
+        this.tblData.sortDir = this.tblData.sortDesc ? "desc" : "asc";
+        this.lkuLoading = true;
+        let list = await items.list(this.tblData);
+        this.lkuLoading = false;
+        this.tblDataItems = list;
+        // return list;  
+      } catch (error) {
+          console.log('error : ', error);
+          if (error.sql) {
+            toastr.error(error.sql, 'ERROR MESSAGE', 10000);
+          } else if (error.sqlMessage) {
+            toastr.error(error.sqlMessage, 'ERROR MESSAGE', 10000);
+          } else if (error.message) {
+            toastr.error(error.message, 'ERROR MESSAGE', 10000);
+          } else {
+            toastr.error(JSON.stringify(error), 'ERROR MESSAGE', 10000);
+          }        
+      }
+
     },
     search() {
       this.tblData.page=1;
+      this.data();
       this.$refs.tblMenu.refresh();
     },
     refresh() {
-      this.$refs.tblMenu.refresh();
+      this.data();
     },
     clearFilter(ctx) {
         this.tblData.item_name =  '';

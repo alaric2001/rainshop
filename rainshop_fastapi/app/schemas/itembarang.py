@@ -1,6 +1,8 @@
 from pydantic import BaseModel, ConfigDict
-from typing import Optional, List
+from typing import Optional, List, Generic, TypeVar
 from app.schemas.item_images import ItemImageOut  # Pastikan ini mengimport schema output
+
+T = TypeVar('T')
 
 class ItemBarangBase(BaseModel):
     item_name: str
@@ -20,6 +22,18 @@ class ItemBarangCreate(ItemBarangBase):
 
 class ItemBarangUpdate(ItemBarangBase):
     item_id: str
+
+class PaginatedResponse(BaseModel, Generic[T]):
+    data: List[T]
+    total: int
+    page: int
+    limit: int
+
+# Schema yang sudah ada (ItemBarangOut) tetap dipertahankan
+class ItemBarangOut(BaseModel):
+    id: int
+    item_name: str
+    # ... field lainnya
 
 class ItemBarangOut(ItemBarangBase):
     item_id: str
