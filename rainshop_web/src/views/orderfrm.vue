@@ -277,10 +277,11 @@
         overflow: scroll;
     }
     .sum-list {
-        max-height: 800px;
+        height: 450px;
+        max-height: 500px;
         overflow: scroll;
         margin: 5px -5px;
-        min-width: 600px;
+        min-width: 400px;
     }
     .sum-list>ul {
         width: 100%;
