@@ -132,7 +132,7 @@
                                 </b-col>
                             </b-row> -->
                             <b-row >
-                                <b-col col md="6" class="text-right pt-2">
+                                <b-col col md="6" class="text-right">
                                     <h6>Total Belanja</h6>
                                 </b-col>
                                 <b-col col md="6" class="text-right pt-2" >
@@ -140,7 +140,7 @@
                                     <hr/>
                                 </b-col>
                             </b-row>
-                            <b-row class="mt-3">
+                            <b-row>
                                 <b-col col md="6" class="text-right">
                                     <h6>Cara Bayar pakai</h6>
                                 </b-col>
@@ -160,7 +160,7 @@
                                     <my-number class="form-control text-right pr-1" separator=","  :precision="2"  v-model="frmdata.paid_amount" :state="!$v.frmdata.paid_amount.$error" ></my-number>
                                 </b-col>
                             </b-row>
-                            <b-row class="mt-2">
+                            <b-row>
                                 <b-col col md="6" class="text-right">
                                     <h6>Uang Kembalian</h6>
                                 </b-col>
@@ -277,8 +277,8 @@
         overflow: scroll;
     }
     .sum-list {
-        height: 450px;
-        max-height: 500px;
+        height: 400px;
+        max-height: 400px;
         overflow: scroll;
         margin: 5px -5px;
         min-width: 400px;
