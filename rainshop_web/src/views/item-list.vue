@@ -319,22 +319,25 @@ export default {
     }, 
     async submitEditGambar() {
       try {
-        
-        const frm = {
-          image:this.capturedImage
-        }
-        const editedImage= this.images[this.editImageIdx]
-        if (editedImage.image_id) {
-            frm.image_id=editedImage.image_id;
-            await items.updateImage(frm);
-        } else {
-            frm.item_id=this.model.item_id;
-            const hasil = await items.insertImage(frm);
-            editedImage.image_id=hasil.data.image_id;
-        }
-        editedImage.image=this.capturedImage;
-        toastr.success("Item berhasil disimpan!");
-        this.modeCaptureCamera=false;
+        if (this.capturedImage) {
+            const frm = {
+              image:this.capturedImage
+            }
+            const editedImage= this.images[this.editImageIdx]
+            if (editedImage.image_id) {
+                frm.image_id=editedImage.image_id;
+                await items.updateImage(frm);
+            } else {
+                frm.item_id=this.model.item_id;
+                const hasil = await items.insertImage(frm);
+                editedImage.image_id=hasil.data.image_id;
+            }
+            editedImage.image=this.capturedImage;
+            toastr.success("Item berhasil disimpan!");
+            this.modeCaptureCamera=false;
+          } else {
+            toastr.error("Ambil Gambar dulu baru klik simpan", 'ERROR', 10000);
+          }
       } catch (error) {
         console.error("Error saving item:", error);
         toastr.error("Gagal menyimpan item!", 'ERROR MESSAGE', 10000);

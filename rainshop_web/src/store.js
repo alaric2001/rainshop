@@ -3,11 +3,23 @@ import Vuex from 'vuex';
 
 Vue.use(Vuex);
 
+
 export default new Vuex.Store({
-    state: {
+    // namespaced: true,
+      state: {
+        stream: null,
         cart: { display: 0, items: [], cartOwner: '' }
     },
     mutations: {
+        setStream(state, stream) {
+        state.stream = stream;
+        },
+        clearStream(state) {
+        if (state.stream) {
+            state.stream.getTracks().forEach(track => track.stop());
+        }
+        state.stream = null;
+        },
         addToCart(state, value) {
             state.cart.items.push(value);
             localStorage.setItem('cart', JSON.stringify(state.cart));

@@ -9,6 +9,7 @@ from PIL import Image
 import os
 import uuid
 import base64
+import moment
 
 os.makedirs("img", exist_ok=True)
 
@@ -47,7 +48,8 @@ def create_image(db: Session, frm: schemas.item_images.ItemImageForm):
         image_id=image_id,
         item_id=frm.item_id,
         image_path=save_path,
-        faiss_index=faiss_index
+        faiss_index=faiss_index,
+        modified = moment.now().date
     )
     db_item_image = models.ItemImage(**new_item_image.dict())
     db.add(db_item_image)
@@ -79,8 +81,8 @@ def update_image(db: Session, image_id: str, image: str):
 
     vector = preprocess_image(img)
     faiss_write (vector,rekord.faiss_index)   
-
-    # db.commit()
+    rekord.modified = moment.now().date
+    db.commit()
     # db.refresh(rekord)
 
     return { "status": True, "image_id": image_id}

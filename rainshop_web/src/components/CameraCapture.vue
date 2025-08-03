@@ -28,9 +28,27 @@ export default {
       capturedImage: null,
     };
   },
-  mounted() {
-    this.initCamera();
+  computed: {
+    stream() {
+      return this.$store.state.stream.stream;
+    }
   },
+  // mounted() {
+  //     // this.initCamera();
+  //   if (this.stream) {
+  //     this.$refs.video.srcObject = this.stream;
+  //   }
+  // }, 
+  mounted() {
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then((stream) => {
+        this.$store.commit('setStream', stream);
+      this.$refs.video.srcObject = stream
+      })
+      .catch((err) => {
+        console.error('Webcam access denied:', err);
+      });
+  },  
   methods: {
     async initCamera() {
       try {

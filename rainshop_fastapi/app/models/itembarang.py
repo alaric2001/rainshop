@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Float, Boolean
+from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -11,5 +11,6 @@ class ItemBarang(Base):
     item_stock = Column(Integer, default=0)
     isactive = Column(Boolean, default=True)
     image_id = Column(String(36), nullable=True)
+    modified = Column(DateTime, nullable=True)
 
     images = relationship("ItemImage", back_populates="item", cascade="all, delete-orphan")

@@ -9,6 +9,7 @@ from PIL import Image
 import os
 import uuid
 import base64
+import moment
 
 # Pastikan folder img ada
 os.makedirs("img", exist_ok=True)
@@ -27,6 +28,7 @@ def create_item(db: Session, item: schemas.itembarang.ItemBarangCreate):
     img = Image.open(BytesIO(image_data))
 
     item.item_id = str(uuid.uuid4())
+    modified = moment.now().date
 
     image_id=str(uuid.uuid4())
     filename = f"img_{image_id}.jpg"
@@ -43,9 +45,11 @@ def create_item(db: Session, item: schemas.itembarang.ItemBarangCreate):
         image_id=image_id,
         item_id=item.item_id,
         image_path=save_path,
-        faiss_index=faiss_index
+        faiss_index=faiss_index,
+        modified = modified
     )
     item.image_id=image_id
+    item.modified = modified
     db_item = models.ItemBarang(**item.dict(exclude={"image","image2","image3"}))
     db.add(db_item)
     db_item_image = models.ItemImage(**new_item_image.dict())
@@ -141,6 +145,7 @@ def update_item(db: Session, item_id: str, frm: schemas.itembarang.ItemBarangUpd
     item.item_name = frm.item_name
     item.item_price = frm.item_price
     item.item_stock = frm.item_stock
+    item.modified = moment.now().date
     if not frm.isactive:
         item.isactive = frm.isactive
 

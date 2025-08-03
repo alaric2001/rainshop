@@ -143,13 +143,17 @@ export default {
     },
     async submitItem() {
       try {
-        const frm = {...this.frmdata};
-        frm.image= this.capturedImage
-        frm.image2= this.capturedImage2
-        frm.image3= this.capturedImage3
-        await items.insert(frm);
-        toastr.success("Item berhasil disimpan!");
-        // this.resetForm();
+        if ( this.capturedImage || this.capturedImage2 || this.capturedImage3) {
+            const frm = {...this.frmdata};
+            frm.image= this.capturedImage
+            frm.image2= this.capturedImage2
+            frm.image3= this.capturedImage3
+            await items.insert(frm);
+            toastr.success("Item berhasil disimpan!");
+            // this.resetForm();
+        } else {
+            toastr.error('Minimal Ambil satu gambar', 'ERROR', 10000);
+        }  
       } catch (error) {
         toastr.error("Gagal menyimpan item!");
         console.log('error : ', error);

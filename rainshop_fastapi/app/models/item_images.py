@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import Column, String, Integer, ForeignKey
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -10,5 +10,6 @@ class ItemImage(Base):
     item_id = Column(String(36), ForeignKey("itembarang.item_id"), nullable=False)
     image_path = Column(String(400), nullable=False)
     faiss_index = Column(Integer, unique=True, nullable=False)
+    modified = Column(DateTime, nullable=True)
 
     item = relationship("ItemBarang", back_populates="images")
