@@ -89,7 +89,7 @@ export default {
     updateImage(obj) {
         return new Promise(async (resolve, reject) => {
             try {
-                const resp = await axios.put(`/images/${obj.image_id}`, obj);
+                const resp = await axios.put(`/images/${obj.image_id}`, {image:obj.image});
                 resolve(resp);
             } catch (error) {
                 errorHandler(error, reject);

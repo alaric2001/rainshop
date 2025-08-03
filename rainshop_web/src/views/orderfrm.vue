@@ -29,7 +29,7 @@
 
                             </div>
                             <!-- START OF MENU -->
-                            <div class="menu-list">
+                            <div class="item-list">
                                     <b-table
                                         class="mb-0"
                                         ref="tblHasil"
@@ -235,10 +235,11 @@
     .menu-img {
         float:left;
     }
-    .menu-list {
+    .item-list {
         overflow: scroll;
         position: absolute;
-        height: 370px;
+        height:500px;
+        max-height: 600px;
         width: 100%;
         right: 0;
         top: 90px;

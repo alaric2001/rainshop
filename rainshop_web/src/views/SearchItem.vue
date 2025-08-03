@@ -1,52 +1,59 @@
 <template>
-  <div>
-    <h1>Cari Item Barang</h1>
-    <CameraCapture @image-captured="searchItem" />
-    <div v-if="searchResults.length">
-      <h3>Hasil Pencarian:</h3>
-          <b-table
-            class="mb-0 text-nowrap"
-            ref="tblHasil"
-            responsive
-            striped hover 
-            style="font-size:large;" 
-            :items="searchResults"
-            :fields="fields"
-          >
-          <template v-slot:cell(isactive)="data">
-            <span v-if="(data.item.isactive==1)">Yes</span>
-          </template>
-          <!-- <template v-slot:cell(modified)="data">
-            <span v-if="(data.item.modified)">{{ data.item.modified | moment("DD-MMM-YY") }}</span>
-          </template> -->
-          <template v-slot:cell(item_price)="data">
-            {{(data.item.item_price)|numFormat}}
-          </template>
-          <template v-slot:cell(image1)="data">
-                  <img :src="data.item.image1" class="img-fluid" alt />
-          </template>
-          <template v-slot:cell(image2)="data">
-                  <img :src="data.item.image2" class="img-fluid" alt />
-          </template>
-          <template v-slot:cell(image3)="data">
-                  <img :src="data.item.image3" class="img-fluid" alt />
-          </template>
+  <div class="animated fadeIn list-item">
+    <b-card >
+      <div slot="header">CARI BARANG  
+        <div class="card-header-actions">
+          <b-button variant="primary mr-1" @click="close()" > <i class="fa fa-close"></i> Close</b-button>
+        </div>
+      </div>
 
-          <template v-slot:cell(action)="data">
-            <div class="text-center">
-            <a href="javascript:void(0)" @click="edit(data.item)">
-              <i class="fa fa-pencil"></i>
-            </a>
-            |
-            <a href="javascript:void(0)" class="text-danger" @click="deleteConfirm(data.item)">
-              <i class="fa fa-trash"></i>
-            </a>
-            </div>
-          </template>
+      <CameraCapture @image-captured="searchItem" />
+      <div v-if="searchResults.length" class="p-1">
+        <h3>Hasil Pencarian:</h3>
+            <b-table
+              class="mb-0 text-nowrap"
+              ref="tblHasil"
+              responsive
+              striped hover 
+              style="font-size:large;" 
+              :items="searchResults"
+              :fields="fields"
+            >
+            <template v-slot:cell(isactive)="data">
+              <span v-if="(data.item.isactive==1)">Yes</span>
+            </template>
+            <!-- <template v-slot:cell(modified)="data">
+              <span v-if="(data.item.modified)">{{ data.item.modified | moment("DD-MMM-YY") }}</span>
+            </template> -->
+            <template v-slot:cell(item_price)="data">
+              {{(data.item.item_price)|numFormat}}
+            </template>
+            <template v-slot:cell(image1)="data">
+                    <img :src="data.item.image1" class="img-fluid" alt />
+            </template>
+            <template v-slot:cell(image2)="data">
+                    <img :src="data.item.image2" class="img-fluid" alt />
+            </template>
+            <template v-slot:cell(image3)="data">
+                    <img :src="data.item.image3" class="img-fluid" alt />
+            </template>
 
-        </b-table>
+            <template v-slot:cell(action)="data">
+              <div class="text-center">
+              <a href="javascript:void(0)" @click="edit(data.item)">
+                <i class="fa fa-pencil"></i>
+              </a>
+              |
+              <a href="javascript:void(0)" class="text-danger" @click="deleteConfirm(data.item)">
+                <i class="fa fa-trash"></i>
+              </a>
+              </div>
+            </template>
 
-    </div>
+          </b-table>
+
+      </div>
+    </b-card>
   </div>
 </template>
 
@@ -168,6 +175,9 @@ export default {
         toastr.error("Gagal mencari item!");
       }
     },
+    close(){
+      router.push("/");
+    },    
   },
 };
 </script>

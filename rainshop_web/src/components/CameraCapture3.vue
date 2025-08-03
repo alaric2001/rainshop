@@ -2,37 +2,16 @@
   <div>
     <b-row class="justify-content-center mb-2">
         <video ref="video" width="480" height="360" autoplay muted></video>
+    </b-row>
+    <b-row class="justify-content-center mb-2">
         <canvas ref="canvas" width="480" height="360" style="display: none;"></canvas>
     </b-row>
-    <b-row>
-      <b-col lg="4">
-          <b-input-group>
-              <b-input-group-prepend><label class="text-right">Gambar#1</label></b-input-group-prepend>
-              <b-input-group-append>
-                  <b-button variant="primary mr-1" @click="capture">Ambil <i class="fa fa-camera"></i></b-button>
-              </b-input-group-append>
-          </b-input-group>
-        <img v-if="capturedImage" :src="capturedImage" alt="Captured#1" width="300" />
-      </b-col>
-      <b-col lg="4">
-          <b-input-group>
-              <b-input-group-prepend><label class="text-right">Gambar#2</label></b-input-group-prepend>
-              <b-input-group-append>
-                  <b-button variant="primary mr-1" @click="capture2">Ambil <i class="fa fa-camera"></i></b-button>
-              </b-input-group-append>
-          </b-input-group>
-        <img v-if="capturedImage2" :src="capturedImage2" alt="Captured#1" width="300" />
-      </b-col>
-      <b-col lg="4">
-          <b-input-group>
-              <b-input-group-prepend><label class="text-right">Gambar#3</label></b-input-group-prepend>
-              <b-input-group-append>
-                  <b-button variant="primary mr-1" @click="capture3">Ambil <i class="fa fa-camera"></i></b-button>
-              </b-input-group-append>
-          </b-input-group>
-        <img v-if="capturedImage3" :src="capturedImage3" alt="Captured#1" width="300" />
-      </b-col>
+    <b-row class="justify-content-center mb-2">
+            <b-button variant="primary mr-1" @click="capture">Gambar#1 Ambil<i class="fa fa-camera"></i></b-button>
+            <b-button variant="primary mr-1" @click="capture2">Gambar#2 Ambil<i class="fa fa-camera"></i></b-button>
+            <b-button variant="primary mr-1" @click="capture3">Gambar#3 Ambil<i class="fa fa-camera"></i></b-button>
     </b-row>
+
   </div>
 </template>
 

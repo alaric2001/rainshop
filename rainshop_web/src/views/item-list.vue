@@ -44,6 +44,7 @@
               <i class="fa fa-play text-primary"></i>
             </template>
             <b-dropdown-item @click="rowEditItem(data.item)" href="#" style="padding:0 !important;"> Edit Nama/Harga/Stok</b-dropdown-item>
+            <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item @click="rowEditGambar(data.item)" href="#" style="padding:0 !important;"> Edit Gambar</b-dropdown-item>
           </b-dropdown>
         </template>
@@ -86,34 +87,6 @@
     <b-modal v-model="showDelConfirm" title="Delete Record?" :centered="true" @ok="deleteData">
       <p class="mb-1">1 record is about to be permanently deleted</p>
       <p class="font-weight-bold m-0 text-danger">Are you sure about doing this?</p>
-    </b-modal>
-    
-    <b-modal v-model="showAddForm"  header-bg-variant="primary" title="Form Input -  Item Barang" size="lg" :centered="true" hide-footer >
-            <CameraCapture3 @image-captured="handleImageCaptured" @image2-captured="handleImage2Captured" @image3-captured="handleImage3Captured" class="mb-2"/>
-            
-              <b-input-group>
-                  <b-input-group-prepend><label>Nama Barang</label></b-input-group-prepend>
-                  <b-form-input  v-model="frmdata.item_name" :state="!$v.frmdata.item_name.$error"></b-form-input>
-              </b-input-group>
-            <b-row>
-                <b-col lg="6">
-                    <b-input-group >
-                        <b-input-group-prepend><label>Harga Barang</label></b-input-group-prepend>
-                        <my-number class="form-control text-right" separator=","  :precision="2"  v-model="frmdata.item_price" :state="!$v.frmdata.item_price.$error" ></my-number>
-                    </b-input-group>
-                </b-col>   
-                <b-col lg="5">                            
-                    <b-input-group >
-                        <b-input-group-prepend><label>Jml. Stock</label></b-input-group-prepend>
-                        <b-form-input v-model="frmdata.item_stock" type="number" :min="1" :state="!$v.frmdata.item_stock.$error"></b-form-input>                                        
-                    </b-input-group>
-                </b-col>
-            </b-row>                      
-            <b-row class="justify-content-center mt-1 mb-2">
-                  <b-button class="btn btn-success mr-1" @click="submitItem">Simpan</b-button>
-                  <b-button class="btn btn-secondary ml-2" @click="resetForm">Kosongkan/ Input Item lain</b-button>
-                  <b-button class="btn btn-warning ml-2" @click="closeForm">Tutup/Batal</b-button>
-            </b-row>
     </b-modal>
     <b-modal v-model="showEditItem"  header-bg-variant="primary" title="Form Edit -  Item Barang" size="lg" :centered="true" hide-footer >
       <b-card>
@@ -162,7 +135,7 @@
 
             <b-row class="justify-content-center mt-1 mb-2">
                   <b-button class="btn btn-success mr-1" @click="submitEditGambar">Simpan</b-button>
-                  <b-button class="btn btn-warning ml-1" @click="closeEditGambar">Batal</b-button>
+                  <b-button class="btn btn-warning ml-1" @click="closeEditGambar">Batal/Close</b-button>
             </b-row>
       </b-card>      
     </b-modal>
@@ -171,74 +144,39 @@
 </template>
 <style lang="scss">
   .list-item {
-    table {
-      td {
-        .dropdown-item {
-          padding: 0.1rem 1.5rem !important;
-          font-size: smaller !important;
-        }
-      }
-    }
-  }
-  .modal-form {
-    .input-group {
-        padding-bottom:2px;
-        .input-group-prepend {
-            label {
-                padding-top: 5px;
-                padding-right: 5px;
-                width: 100px;
-            }
-        }
-    }
-  }
-    .input-group {
-        padding-bottom:2px;
-        .input-group-prepend {
-            label {
-                padding-top: 5px;
-                padding-right: 5px;
-                width: 130px;
-            }
-        }
-    }
-
-      .item {
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        padding: 0 0 20px;
-        position: absolute;
-        top: 5px;
-        left: 8px;
-        bottom: 5px;
-        right: 8px;
-        transition: 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        cursor: pointer;
-
-        .price {
-          font-size: 13px;
-          margin-top: 5px;
-          color: #ff5722;
-
-          .price-discount {
-            margin-left: 10px;
-            font-size: 11px;
-            background: #f02222;
-            padding: 3px 7px;
-            color: #fff;
-            border-radius: 2px;
-            margin-top: -10px;
+      table {
+        td {
+          .dropdown-item {
+            padding: 0.1rem 1.5rem !important;
+            font-size: smaller !important;
           }
         }
+      }
+      .input-group {
+          padding-bottom:2px;
+          .input-group-prepend {
+              label {
+                  padding-top: 5px;
+                  padding-right: 5px;
+                  width: 130px;
+              }
+          }
+      }
+    .modal-form {
+      .input-group {
+          padding-bottom:2px;
+          .input-group-prepend {
+              label {
+                  padding-top: 5px;
+                  padding-right: 5px;
+                  width: 100px;
+              }
+          }
+      }
+    }
 
-        img {
-          border-radius: 5px 5px 0 0;
-        }
+  }
 
-        &:hover {
-          background-color: rgba(0, 0, 0, 0.1);
-        }
-      }    
 </style>
 <script>
 import items from "../apis/items";
@@ -309,6 +247,7 @@ export default {
         sortBy: null,
         sortDesc: false, item_name:'', item_stock:''
       },
+      resetCamera: false,
         frmdata: {
             item_name: '',
             item_price: 0,
@@ -319,7 +258,6 @@ export default {
       isLoading:false,
       showDelConfirm: false,
       showFilter:false,
-      showAddForm:false,
       showEditItem:false,
       showEditGambar:false,
       modeCaptureCamera:false,
@@ -327,6 +265,7 @@ export default {
       showReport:false,
       reportUrl: `${location.origin}/#load`,
       activeStatus : [{ value: '', text: '-- ALL --' },, { value: '0', text: 'Yes' },{ value: '1', text: 'No' }],
+      capturedImage:null,
       editImageIdx:''
     };
   },
@@ -354,30 +293,6 @@ export default {
     handleImageCaptured(imageData) {
       this.capturedImage = imageData;
     },
-    handleImage2Captured(imageData) {
-        console.log("handleImage2Captured")
-      this.capturedImage2 = imageData;
-    },
-    handleImage3Captured(imageData) {
-        console.log("handleImage3Captured")
-      this.capturedImage3 = imageData;
-    },
-    async submitItem() {
-      try {
-        const frm = {...this.frmdata};
-        frm.image= this.capturedImage
-        frm.image2= this.capturedImage2
-        frm.image3= this.capturedImage3
-        console.log("this.capturedImage2:",this.capturedImage2)
-        console.log("this.capturedImage3:",this.capturedImage3)
-        const response = await items.insert(frm);
-        toastr.success("Item berhasil disimpan!");
-        // this.resetForm();
-      } catch (error) {
-        console.error("Error saving item:", error);
-        toastr.error("Gagal menyimpan item!");
-      }
-    }, 
     async submitEdit() {
       try {
         const frm = {...this.frmdata};
@@ -414,9 +329,12 @@ export default {
             await items.updateImage(frm);
         } else {
             frm.item_id=this.model.item_id;
-            await items.insertImage(frm);
+            const hasil = await items.insertImage(frm);
+            editedImage.image_id=hasil.data.image_id;
         }
+        editedImage.image=this.capturedImage;
         toastr.success("Item berhasil disimpan!");
+        this.modeCaptureCamera=false;
       } catch (error) {
         console.error("Error saving item:", error);
         toastr.error("Gagal menyimpan item!", 'ERROR MESSAGE', 10000);
@@ -443,19 +361,12 @@ export default {
       try {
         const dataSvr = await items.detail(this.model)
         this.images = dataSvr.images;
-        // for (let index = 0; index < this.images.length; index++) {
-        //   const el = this.images[index];
-        //   const imgBase64 = await items.imageItem(el.image_id)
-        //   el.image=imgBase64          
-        // }        
-        this.images.forEach(el => {
-          el.image='';
-          items.imageItem(el.image_id).then((imgBase64) => {
-            el.image=imgBase64          
-          })
-        });
-
-        if (this.images.length<2) {
+        for (let index = 0; index < this.images.length; index++) {
+          const el = this.images[index];
+          const imgBase64 = await items.imageItem(el.image_id)
+          el.image=imgBase64          
+        }        
+        if (this.images.length<3) {
            for (let index = this.images.length; index < 3; index++) {
             this.images.push({})
            }
@@ -481,6 +392,7 @@ export default {
         this.modeCaptureCamera=true;
     },
     resetForm(){
+      this.resetCamera = !this.resetCamera;
       this.frmdata.item_name= '';
       this.frmdata.item_price= 1;
       this.frmdata.item_stock= 1;
@@ -545,8 +457,7 @@ export default {
 
 
     add: function() {
-      this.showList=false;
-      this.showAddForm=true
+      router.push({name :"app.iteminput"});
     },
     edit: function() {
         if (this.model) {
@@ -588,10 +499,6 @@ export default {
     closeEditGambar: function() {
       this.showList=true;
       this.showEditGambar=false
-    },
-    closeForm: function() {
-      this.showList=true;
-      this.showAddForm=false
     },
     close(){
       router.push("/");

@@ -4,7 +4,8 @@
     <app-footer fixed >
         <div>
             <nav>
-            <router-link to="/input">Input Barang</router-link> |
+            <router-link to="/item-input">Input Barang</router-link> |
+            <router-link to="/item-list">List Barang</router-link> |
             <router-link to="/search">Cari Barang</router-link> |
             <router-link to="/penjualan">Penjualan</router-link>
             </nav>

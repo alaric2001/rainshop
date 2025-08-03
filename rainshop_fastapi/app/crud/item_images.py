@@ -54,7 +54,7 @@ def create_image(db: Session, frm: schemas.item_images.ItemImageForm):
     db.commit()
     db.refresh(db_item_image)
 
-    return { "status": True }
+    return { "status": True, "image_id": image_id}
  except Exception as e:
     traceback.print_exc()
     raise HTTPException(status_code=500, detail=f"Error saat proses gambar: {str(e)}")
@@ -83,7 +83,7 @@ def update_image(db: Session, image_id: str, image: str):
     # db.commit()
     # db.refresh(rekord)
 
-    return { "status": True }
+    return { "status": True, "image_id": image_id}
  except Exception as e:
     traceback.print_exc()
     raise HTTPException(status_code=500, detail=f"Error saat update gambar: {str(e)}")
