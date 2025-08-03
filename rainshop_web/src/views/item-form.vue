@@ -158,9 +158,9 @@ export default {
       }
     }, 
     resetForm(){
-      this.resetCamera = !this.resetCamera;
+      //this.resetCamera = !this.resetCamera;
       this.frmdata.item_name= '';
-      this.frmdata.item_price= 1;
+      this.frmdata.item_price= 0;
       this.frmdata.item_stock= 1;
       this.capturedImage=null
       this.capturedImage2=null
