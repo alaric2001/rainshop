@@ -147,14 +147,21 @@ export default {
         frm.image= this.capturedImage
         frm.image2= this.capturedImage2
         frm.image3= this.capturedImage3
-        console.log("this.capturedImage2:",this.capturedImage2)
-        console.log("this.capturedImage3:",this.capturedImage3)
-        const response = await items.insert(frm);
+        await items.insert(frm);
         toastr.success("Item berhasil disimpan!");
         // this.resetForm();
       } catch (error) {
-        console.error("Error saving item:", error);
         toastr.error("Gagal menyimpan item!");
+        console.log('error : ', error);
+        if (error.sql) {
+            toastr.error(error.sql, 'ERROR MESSAGE', 10000);
+        } else if (error.sqlMessage) {
+            toastr.error(error.sqlMessage, 'ERROR MESSAGE', 10000);
+        } else if (error.message) {
+            toastr.error(error.message, 'ERROR MESSAGE', 10000);
+        } else {
+            toastr.error(JSON.stringify(error), 'ERROR MESSAGE', 10000);
+        }        
       }
     }, 
     resetForm(){
