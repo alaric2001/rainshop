@@ -1,6 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional, List, Generic, TypeVar
 from app.schemas.item_images import ItemImageOut  # Pastikan ini mengimport schema output
+from datetime import datetime
 
 T = TypeVar('T')
 
@@ -10,6 +11,7 @@ class ItemBarangBase(BaseModel):
     item_stock: Optional[int] = 0
     isactive: Optional[bool] = True
     image_id: Optional[str] = None
+    modified: Optional[datetime] = None
 
 class ImageSearchRequest(BaseModel):
     image: str

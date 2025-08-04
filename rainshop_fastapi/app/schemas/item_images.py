@@ -1,11 +1,12 @@
 from pydantic import BaseModel
 from typing import Optional
-
+from datetime import datetime
 
 class ItemImageBase(BaseModel):
     item_id: str
     image_path: str
     faiss_index: int = None
+    modified: Optional[datetime] = None
 
 class ItemImageId(BaseModel):
     image_id: str
