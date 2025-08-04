@@ -42,6 +42,18 @@ def faiss_search(vector: np.ndarray):
 
     return index.search(vector, k=3)
 
+def faiss_remove(faiss_index: int):
+    # Cek apakah file index Faiss sudah ada
+    index_path = "index_barang.bin"
+    if os.path.exists(index_path):
+        # Muat index dari file
+        index = faiss.read_index(index_path)
+    else:
+        # Buat IndexIDMap index Faiss (FlatL2 = jarak Euclidean biasa)
+        index = faiss.IndexIDMap(faiss.IndexFlatL2(2048))
+
+    index.remove_ids(np.array([faiss_index], dtype=np.int64))    
+    return {"status" : True}
 
 
 def preprocess_image(img):    

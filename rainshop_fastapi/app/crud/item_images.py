@@ -1,5 +1,5 @@
 import traceback
-from sqlalchemy import func
+from sqlalchemy import func, delete 
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from app import models, schemas
@@ -116,6 +116,23 @@ def get_image(db: Session, image_id: str):
     else:
        print (f' image not found dg id:{image_id}')
 
-
 def get_images_by_item_id(db: Session, item_id: str):
     return db.query(models.ItemImage).filter_by(item_id=item_id).all()
+
+def remove_image(db: Session, image_id: str):
+ try:
+    rekord = db.query(models.ItemImage).filter_by(image_id=image_id).first()
+    if not rekord:
+        raise HTTPException(status_code=404, detail="Image not found")
+
+    filename = f"img_{image_id}.jpg"
+    save_path = os.path.join("img", filename)
+    os.remove(save_path);  
+                
+    delete(models.ItemImage).where(models.ItemImage.image_id == image_id)
+    db.commit()
+    return faiss_remove (rekord.faiss_index) 
+ 
+ except Exception as e:
+    traceback.print_exc()
+    raise HTTPException(status_code=500, detail=f"Error saat update gambar: {str(e)}")

@@ -47,10 +47,9 @@
                                                 Stok: {{data.item.item_stock}}
                                             </div>
                                         </p>
-                                        
                                     </template>
                                     <template v-slot:cell(image1)="data">
-                                            <img :src="data.item.image" :key="data.item.image" class="img-fluid" alt />
+                                            <img :src="data.item.image" :key="data.item.image" @click="openZoomImage(data.item.image)" class="img-fluid" alt />
                                     </template>
 
                                     </b-table>
@@ -68,7 +67,7 @@
                             </b-col>
                             <b-col cols="5">
                                 <div class="float-right" :key="frmdata.sales_no">
-                                    No Struk: {{ frmdata.sales_no }}
+                                    Struk: {{ frmdata.sales_no }}
                                 </div>
                             </b-col>
                         </b-row>
@@ -181,8 +180,11 @@
 
 
 
-    <b-modal v-model="showWebcam"  header-bg-variant="primary" title="Cari  Barang" size="lg" :centered="true" hide-footer >
+    <b-modal v-model="showWebcam"  header-bg-variant="primary" title="Cari Barang" size="lg" :centered="true" hide-footer >
         <CameraCapture @image-captured="searchItem" class="mb-2"/>
+    </b-modal>
+    <b-modal v-model="showZoomGambar"  header-bg-variant="primary" title="Zoom Gambar Barang" size="md" :centered="true" ok-only  >
+            <img :src="zoomImage" :key="zoomImage" class="img-fluid" width="640" height="480" alt />
     </b-modal>
 
   </div>
@@ -425,7 +427,8 @@ export default {
       },
         modeViewOnly:false,
         printer:null,
-
+        zoomImage:null,
+        showZoomGambar:false
     };
   },
   created: async function() {
@@ -609,51 +612,9 @@ export default {
             }        
         }
     },
-    printDebug: async function() {
-        // if (this.modeViewOnly==true) {
-        //     toastr.error('View Only, No Data Change allowed');
-        //     return;
-        // } 
-        try {
-            this.hitungTotal();
-            const data = {};
-            const keys = ['sales_id','sales_no','sales_total','sales_paym','totalitem'];
-            for (var key in this.frmdata) {
-                if (keys.indexOf(key) >= 0 && this.frmdata[key]) {
-                    data[key] = this.frmdata[key];
-                }
-            }
-            const keysLine = ['sales_id','sales_line_id','item_id','item_price','qty', 'subtotal','item_name'];
-            data.lines =  this.lineorder.reduce((newArr, item) => {
-                                const newitem={}
-                                for (var key in item) {
-                                    if (keysLine.indexOf(key) >= 0 && item[key]) {
-                                        newitem[key] = item[key];
-                                    }
-                                }
-                                newArr.push(newitem);
-                                    return newArr;
-                            }, []);
-                sales.printDebug(data).then(()=>{
-                    console.log(`DONE calling ${process.env.VUE_APP_BASE_API}/print-debug`);
-                })
-        } catch (error) {
-            console.log('error : ', error);
-            if (error.sql) {
-                toastr.error(error.sql, 'ERROR MESSAGE', 10000);
-            } else if (error.sqlMessage) {
-                toastr.error(error.sqlMessage, 'ERROR MESSAGE', 10000);
-            } else if (error.message) {
-                toastr.error(error.message, 'ERROR MESSAGE', 10000);
-            } else {
-                toastr.error(JSON.stringify(error), 'ERROR MESSAGE', 10000);
-            }        
-        }
-    },
-    printTest: async function() {
-        sales.printTest().then(()=>{
-            console.log(`DONE calling ${process.env.VUE_APP_BASE_API}/print-test`);
-        })
+    openZoomImage: function(gambar) {
+        this.zoomImage=gambar
+        this.showZoomGambar=true;
     },
 
     clearForm: function() {

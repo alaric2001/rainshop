@@ -29,13 +29,13 @@
               {{(data.item.item_price)|numFormat}}
             </template>
             <template v-slot:cell(image1)="data">
-                    <img :src="data.item.image1" class="img-fluid" alt />
+                    <img :src="data.item.image1" @click="openZoomImage(data.item.image1)" class="img-fluid" alt />
             </template>
             <template v-slot:cell(image2)="data">
-                    <img :src="data.item.image2" class="img-fluid" alt />
+                    <img :src="data.item.image2" @click="openZoomImage(data.item.image2)" class="img-fluid" alt />
             </template>
             <template v-slot:cell(image3)="data">
-                    <img :src="data.item.image3" class="img-fluid" alt />
+                    <img :src="data.item.image3" @click="openZoomImage(data.item.image3)" class="img-fluid" alt />
             </template>
 
             <template v-slot:cell(action)="data">
@@ -54,6 +54,9 @@
 
       </div>
     </b-card>
+    <b-modal v-model="showZoomGambar"  header-bg-variant="primary" title="Zoom Gambar Barang" size="md" :centered="true" ok-only  >
+            <img :src="zoomImage" :key="zoomImage" class="img-fluid" width="640" height="480" alt />
+    </b-modal>
   </div>
 </template>
 
@@ -68,43 +71,7 @@
             }
         }
     }
-
-      .item {
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        padding: 0 0 20px;
-        position: absolute;
-        top: 5px;
-        left: 8px;
-        bottom: 5px;
-        right: 8px;
-        transition: 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        cursor: pointer;
-
-        .price {
-          font-size: 13px;
-          margin-top: 5px;
-          color: #ff5722;
-
-          .price-discount {
-            margin-left: 10px;
-            font-size: 11px;
-            background: #f02222;
-            padding: 3px 7px;
-            color: #fff;
-            border-radius: 2px;
-            margin-top: -10px;
-          }
-        }
-
-        img {
-          border-radius: 5px 5px 0 0;
-        }
-
-        &:hover {
-          background-color: rgba(0, 0, 0, 0.1);
-        }
-      }    
+ 
 </style>
 
 <script>
@@ -159,10 +126,15 @@ export default {
             tdClass: "text-center"
           },
       ],
-
+        zoomImage:null,
+        showZoomGambar:false
     };
   },
   methods: {
+    openZoomImage: function(gambar) {
+        this.zoomImage=gambar
+        this.showZoomGambar=true;
+    },
     async searchItem(imageData) {
       try {
         const response = await items.search({

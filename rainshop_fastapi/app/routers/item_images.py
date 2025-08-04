@@ -40,3 +40,7 @@ def get_image(image_id: str, db: Session = Depends(get_db)):
 @router.get("/by-item/{item_id}", response_model=List[schemas.item_images.ItemImageOut])
 def get_images_by_item(item_id: str, db: Session = Depends(get_db)):
     return crud.item_images.get_images_by_item_id(db, item_id)
+
+@router.delete("/{image_id}")
+def remove_image(image_id: str, db: Session = Depends(get_db)):
+    return crud.item_images.remove_image(db, image_id)
