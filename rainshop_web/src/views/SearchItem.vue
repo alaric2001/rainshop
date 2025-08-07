@@ -38,18 +38,6 @@
                     <img :src="data.item.image3" @click="openZoomImage(data.item.image3)" class="img-fluid" alt />
             </template>
 
-            <template v-slot:cell(action)="data">
-              <div class="text-center">
-              <a href="javascript:void(0)" @click="edit(data.item)">
-                <i class="fa fa-pencil"></i>
-              </a>
-              |
-              <a href="javascript:void(0)" class="text-danger" @click="deleteConfirm(data.item)">
-                <i class="fa fa-trash"></i>
-              </a>
-              </div>
-            </template>
-
           </b-table>
 
       </div>

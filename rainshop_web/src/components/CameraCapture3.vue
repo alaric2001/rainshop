@@ -7,9 +7,9 @@
         <canvas ref="canvas" width="480" height="360" style="display: none;"></canvas>
     </b-row>
     <b-row class="justify-content-center mb-2">
-            <b-button variant="primary mr-1" @click="capture">Gambar#1 Ambil<i class="fa fa-camera"></i></b-button>
-            <b-button variant="primary mr-1" @click="capture2">Gambar#2 Ambil<i class="fa fa-camera"></i></b-button>
-            <b-button variant="primary mr-1" @click="capture3">Gambar#3 Ambil<i class="fa fa-camera"></i></b-button>
+            <b-button variant="primary mr-1" @click="capture"><i class="fa fa-camera"></i> Ambil Gambar#1</b-button>
+            <b-button variant="primary mr-1" @click="capture2"><i class="fa fa-camera"></i> Ambil Gambar#2</b-button>
+            <b-button variant="primary mr-1" @click="capture3"><i class="fa fa-camera"></i> Ambil Gambar#3</b-button>
     </b-row>
 
   </div>

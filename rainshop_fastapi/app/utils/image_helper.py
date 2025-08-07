@@ -40,7 +40,7 @@ def faiss_search(vector: np.ndarray):
         # Buat IndexIDMap index Faiss (FlatL2 = jarak Euclidean biasa)
         index = faiss.IndexIDMap(faiss.IndexFlatL2(2048))
 
-    return index.search(vector, k=3)
+    return index.search(vector, k=5)
 
 def faiss_remove(faiss_index: int):
     # Cek apakah file index Faiss sudah ada

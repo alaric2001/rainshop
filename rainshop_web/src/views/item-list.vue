@@ -58,6 +58,10 @@
           <template v-slot:cell(item_price)="data">
             {{(data.item.item_price)|numFormat}}
           </template>
+          <template v-slot:cell(modified)="data">
+            <span v-if="(data.item.modified)">{{ data.item.modified | moment("DD-MMM-YY") }}</span>
+          </template>
+
         </b-table>
         <b-row class="mt-1">
           <b-col cols="4">
@@ -234,6 +238,13 @@ export default {
             key: "isactive",
             thStyle: "width:100px",
             label: "Active",
+            tdClass: "text-center",
+            sortable: true
+          },
+          {
+            key: "modified",
+            thStyle: "width:100px",
+            label: "Terakhir diUpdate",
             tdClass: "text-center",
             sortable: true
           },

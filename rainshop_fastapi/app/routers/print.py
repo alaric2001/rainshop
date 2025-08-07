@@ -122,7 +122,7 @@ async def print_struk(data: SalesForm):
     printer.set(align='center')
     printer.text("\n")
     printer.text(f'{now.format("ddd, DD MMM YYYY HH:mm")}\n')
-    printer.text("Terima Kasih\n\n\n")
+    printer.text("Terima Kasih\n\n\n\n")
     printer.cut()
     return {"status": "success", "message": "Printed successfully"}
 

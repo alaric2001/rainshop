@@ -513,21 +513,14 @@ export default {
     },
     hitungTotal: function(){
             let totalqty = 0, subtotal = 0, discval = 0, netto = 0, serviceval = 0, dpp=0, pb1val = 0, total = 0, paid_amount = 0;
-            const total_qty_description = [];
+            //const total_qty_description = [];
             this.lineorder.forEach((item_dibeli)=> {
                 subtotal += item_dibeli.qty * item_dibeli.item_price;
-                item_dibeli.subtotal=subtotal
+                item_dibeli.subtotal=item_dibeli.qty * item_dibeli.item_price
+                totalqty += item_dibeli.qty;
+                //total_qty_description.push(`${item_dibeli.qty} ${item_dibeli.item_name}`);
             });
 
-            subtotal=0; discval=0;
-            this.lineorder.forEach((item_dibeli)=> {
-                // console.log('item_dibeli :', item_dibeli);
-                totalqty += item_dibeli.qty;
-                subtotal += item_dibeli.qty * item_dibeli.item_price;
-                                
-                total_qty_description.push(`${item_dibeli.qty} ${item_dibeli.item_name}`);
-            });
-            // this.frmdata.note=total_qty_description.join(', ');
             // HITUNG TOTAL INVOICE
             netto = subtotal - discval;
             total = netto ;
