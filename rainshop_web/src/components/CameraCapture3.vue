@@ -1,17 +1,19 @@
 <template>
   <div>
-    <b-row class="justify-content-center mb-2">
-        <video ref="video" width="480" height="360" autoplay muted></video>
+    <b-row  no-gutter>
+       <b-col cols="10">
+            <video ref="video" width="480" height="360" autoplay muted></video>
+            <canvas ref="canvas" width="480" height="360" style="display: none;"></canvas>
+       </b-col> 
+       <b-col cols="2">
+            <span> Ambil <i class="fa fa-camera"></i></span>
+            <b-button variant="primary mb-5" class="pl-0 pr-0" @click="capture">Gambar#1</b-button>
+            <span> Ambil <i class="fa fa-camera"></i></span>
+            <b-button variant="primary mb-5" class="pl-0 pr-0" @click="capture2">Gambar#2</b-button>
+            <span> Ambil <i class="fa fa-camera"></i></span>
+            <b-button variant="primary mb-5" class="pl-0 pr-0" @click="capture3">Gambar#3</b-button>
+       </b-col>
     </b-row>
-    <b-row class="justify-content-center mb-2">
-        <canvas ref="canvas" width="480" height="360" style="display: none;"></canvas>
-    </b-row>
-    <b-row class="justify-content-center mb-2">
-            <b-button variant="primary mr-1" @click="capture"><i class="fa fa-camera"></i> Ambil Gambar#1</b-button>
-            <b-button variant="primary mr-1" @click="capture2"><i class="fa fa-camera"></i> Ambil Gambar#2</b-button>
-            <b-button variant="primary mr-1" @click="capture3"><i class="fa fa-camera"></i> Ambil Gambar#3</b-button>
-    </b-row>
-
   </div>
 </template>
 

@@ -11,9 +11,7 @@
             <CameraCapture3 :key="resetCamera" @image-captured="handleImageCaptured" 
             @image2-captured="handleImage2Captured" 
             @image3-captured="handleImage3Captured" class="mb-2"/> 
-            <b-row class="justify-content-center">
               <b-button v-if="((capturedImage) && (searchResults.length==0))" variant="warning" @click="searchItem" > <i class="fa fa-search"></i> Lihat apakah gambar sudah pernah didaftarkan</b-button>
-            </b-row>
             <div v-if="searchResults.length" class="p-1">
                   <b-table
                     class="mb-0 text-nowrap"
