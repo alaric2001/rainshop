@@ -80,17 +80,17 @@
                     <b-card class="mt-2">
                         <b-input-group>
                             <b-input-group-prepend><label>Nama Barang</label></b-input-group-prepend>
-                            <b-form-input  v-model="frmdata.item_name" :state="!$v.frmdata.item_name.$error"></b-form-input>
+                            <b-form-input  v-model="model.item_name" :state="!$v.model.item_name.$error"></b-form-input>
                         </b-input-group>
                                 <b-input-group >
                                     <b-input-group-prepend><label>Harga Barang</label></b-input-group-prepend>
-                                    <my-number class="form-control text-right" separator=","  :precision="2"  v-model="frmdata.item_price" :state="!$v.frmdata.item_price.$error" ></my-number>
+                                    <my-number class="form-control text-right" separator=","  :precision="2"  v-model="model.item_price" :state="!$v.model.item_price.$error" ></my-number>
                                 </b-input-group>
                         <b-row >
                             <b-col cols="7">
                                 <b-input-group >
                                     <b-input-group-prepend><label>Jml. Stock</label></b-input-group-prepend>
-                                    <b-form-input v-model="frmdata.item_stock" type="number" :min="1" :state="!$v.frmdata.item_stock.$error"></b-form-input>                                        
+                                    <b-form-input v-model="model.item_stock" type="number" :min="1" :state="!$v.model.item_stock.$error"></b-form-input>                                        
                                 </b-input-group>
                             </b-col>
                         </b-row>                      
@@ -111,8 +111,26 @@
       <b-card>
               <b-input-group>
                   <b-input-group-prepend><label>Nama Barang</label></b-input-group-prepend>
-                  <b-form-input  v-model="model.item_name" disabled></b-form-input>
+                  <b-form-input  v-model="frmdata.item_name" :state="!$v.frmdata.item_name.$error"></b-form-input>
               </b-input-group>
+            <b-row>
+                <b-col lg="6">
+                    <b-input-group >
+                        <b-input-group-prepend><label>Harga Barang</label></b-input-group-prepend>
+                        <my-number class="form-control text-right" separator=","  :precision="2"  v-model="frmdata.item_price" :state="!$v.frmdata.item_price.$error" ></my-number>
+                    </b-input-group>
+                </b-col>   
+                <b-col lg="5">                            
+                    <b-input-group >
+                        <b-input-group-prepend><label>Jml. Stock</label></b-input-group-prepend>
+                        <b-form-input v-model="frmdata.item_stock" type="number" :min="1" :state="!$v.frmdata.item_stock.$error"></b-form-input>                                        
+                    </b-input-group>
+                </b-col>
+            </b-row>                      
+            <b-row class="justify-content-center mb-4">
+                  <b-button class="btn btn-success mr-1" @click="submitEdit">Simpan Edit</b-button>
+                  <b-button class="btn btn-warning ml-1" @click="closeEditGambar">Batal/Close</b-button>
+            </b-row>
               <b-row v-if="modeCaptureCamera==false">
                   <b-col cols="4" v-for="(row,imgIdx) in images" :key="row.image_id">
                       <b-input-group>
@@ -124,12 +142,24 @@
                       <img :src="row.image" :key="row.image" class="img-fluid" alt />
                   </b-col>
               </b-row>
-               <CameraCapture v-else @image-captured="handleImageCaptured" class="mb-2"/>
+              <b-row v-else >
+                  <b-col cols="6">
+                      <CameraCapture @image-captured="handleImageCaptured" class="mb-2"/>
+                  </b-col>
+                  <b-col cols="6">
+                          <div class="mt-4" style="width:300px;height:240px">
+                              <img :src="capturedImage"   width="300" />
+                          </div>
+                        <b-row >
+                              <b-button class="btn btn-success ml-3" @click="submitEditGambar">Simpan Gambar</b-button>
+                              <b-button class="btn btn-warning ml-1" @click="modeCaptureCamera=false">Batal/Close</b-button>
+                        </b-row>
+                  </b-col>
 
-            <b-row class="justify-content-center mt-1 mb-2">
-                  <b-button class="btn btn-success mr-1" @click="submitEditGambar">Simpan</b-button>
-                  <b-button class="btn btn-warning ml-1" @click="closeEditGambar">Batal/Close</b-button>
-            </b-row>
+
+
+              </b-row>
+
       </b-card>      
     </b-modal>
 
@@ -165,7 +195,7 @@
 import items from "../apis/items";
 import Loading from 'vue-loading-overlay';
 import myNumber from "../components/my-number";
-import CameraCapture from "../components/CameraCapture.vue";
+import CameraCapture from "../components/CameraCapture2.vue";
 import CameraCapture3 from "../components/CameraCapture3.vue";
 import { validationMixin } from "vuelidate";
 import { required} from "vuelidate/lib/validators";
@@ -176,6 +206,11 @@ export default {
   components: {Loading,myNumber,CameraCapture,CameraCapture3},
   mixins: [validationMixin],
   validations: {
+        model: {
+            item_name: { required },
+            item_price: { required },
+            item_stock: { required },
+        },
         frmdata: {
             item_name: { required },
             item_price: { required },
@@ -187,12 +222,16 @@ export default {
       itemsApi:items,
       isLoading:false,
       resetCamera: false,
-        frmdata: {
-            item_name: '',
-            item_price: 0,
-            item_stock: 1,
-        },
-      model:{},
+      model: {
+          item_name: '',
+          item_price: 0,
+          item_stock: 1,
+      },
+      frmdata: {
+          item_name: '',
+          item_price: 0,
+          item_stock: 1,
+      },
       capturedImage:null,
       capturedImage2:null,
       capturedImage3:null,
@@ -260,6 +299,11 @@ export default {
     },
     async rowEditGambar(record) {
       try {
+      this.frmdata.item_id= record.item_id;
+      this.frmdata.item_name= record.item_name;
+      this.frmdata.item_price= record.item_price;
+      this.frmdata.item_stock= record.item_stock;
+
         const dataSvr = await items.detail(record)
         this.images = dataSvr.images;
         for (let index = 0; index < this.images.length; index++) {
@@ -292,6 +336,18 @@ export default {
         this.editImageIdx=imageIdx;
         this.modeCaptureCamera=true;
     },
+    async submitEdit() {
+      try {
+        const frm = {...this.frmdata};
+        await items.update(frm);
+        toastr.success("Item berhasil disimpan!");
+        // this.resetForm();
+      } catch (error) {
+        console.error("Error saving item:", error);
+        toastr.error("Gagal menyimpan item!");
+      }
+    }, 
+
     async submitEditGambar() {
       try {
         if (this.capturedImage) {
@@ -325,7 +381,7 @@ export default {
     async submitItem() {
       try {
         if ( this.capturedImage || this.capturedImage2 || this.capturedImage3) {
-            const frm = {...this.frmdata};
+            const frm = {...this.model};
             frm.image= this.capturedImage
             frm.image2= this.capturedImage2
             frm.image3= this.capturedImage3
@@ -351,9 +407,9 @@ export default {
     }, 
     resetForm(){
       //this.resetCamera = !this.resetCamera;
-      this.frmdata.item_name= '';
-      this.frmdata.item_price= 0;
-      this.frmdata.item_stock= 1;
+      this.model.item_name= '';
+      this.model.item_price= 0;
+      this.model.item_stock= 1;
       this.capturedImage=null
       this.capturedImage2=null
       this.capturedImage3=null
