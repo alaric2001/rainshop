@@ -5,6 +5,5 @@ index_barang.bin
 __pycache__/
 
 client/node_modules
-client/dist
 
 app/.env

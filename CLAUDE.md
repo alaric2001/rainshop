@@ -6,14 +6,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Repository ini berisi **dua aplikasi** yang saling terintegrasi untuk sistem POS (Point of Sale) toko Rainshop:
 
-1. **`rainshop_fastapi/`** — Backend REST API dengan FastAPI (Python)
-2. **`rainshop_web/`** — Frontend webapp dengan Vue.js 2
+1. **`app/`** (root repo) — Backend REST API dengan FastAPI (Python)
+2. **`client/`** — Frontend webapp dengan Vue.js 2
 
 Fitur unggulan: pencarian item barang menggunakan **AI image similarity search** (FAISS + ResNet50) — kasir cukup arahkan kamera ke barang, tanpa perlu kode barcode.
 
+Untuk menjalankan kedua aplikasi sekaligus, cukup klik **`rainshop.bat`** di root repo.
+
 ---
 
-## Backend: rainshop_fastapi
+## Backend (root repo / `app/`)
 
 ### Setup & Menjalankan
 
@@ -32,8 +34,6 @@ uvicorn app.main:app --reload
 ```
 
 API berjalan di `http://127.0.0.1:8000`. Dokumentasi Swagger tersedia di `http://127.0.0.1:8000/docs`.
-
-Bisa juga klik `rainshop_server.bat` untuk menjalankan uvicorn.
 
 ### Update requirements setelah install library baru
 
@@ -118,6 +118,8 @@ Axios `baseURL` dikonfigurasi di `main.js` menggunakan `process.env.VUE_APP_BASE
 
 ### Arsitektur Frontend
 
+`webapp/` adalah folder **hasil build production** dari `client/`. Dikonfigurasi di `client/vue.config.js` dengan `outputDir: '../webapp'`. Dijalankan via `http-server` oleh `rainshop.bat`.
+
 ```
 client/src/
 ├── main.js        # Setup Vue, axios baseURL, plugin (BootstrapVue, vue-moment, dll)
@@ -158,6 +160,8 @@ Script SQL ada di `db_script/2025-07-29/`. Skema utama:
 
 ---
 
-## Alur Pengembangan
+## Catatan Penting
 
-Pastikan uvicorn dijalankan dari **root repo** agar path `img/` dan `index_barang.bin` benar. Jika dijalankan dari folder yang berbeda, FAISS index dan gambar item tidak akan ditemukan.
+- Uvicorn **harus dijalankan dari root repo** agar path `img/` dan `index_barang.bin` benar. Jika dijalankan dari folder lain, FAISS index dan gambar item tidak akan ditemukan.
+- Library `gtts` wajib terinstall di environment Python yang dipakai (`pip install gtts`) — jika tidak, backend gagal start dengan `ModuleNotFoundError`.
+- File `rainshop.bat` menjalankan backend (uvicorn) dan frontend (http-server dari folder `webapp/`) sekaligus, lalu membuka Edge otomatis setelah 45 detik.
