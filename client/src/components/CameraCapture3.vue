@@ -38,7 +38,7 @@ export default {
   //   }
   // }, 
   mounted() {
-    navigator.mediaDevices.getUserMedia({ video: true })
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
       .then((stream) => {
         this.$store.commit('setStream', stream);
       this.$refs.video.srcObject = stream
@@ -50,7 +50,7 @@ export default {
   methods: {
     async initCamera() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } });
         this.$refs.video.srcObject = stream;
       } catch (error) {
         console.error("Error accessing webcam:", error);

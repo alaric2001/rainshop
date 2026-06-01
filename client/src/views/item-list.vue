@@ -1,11 +1,10 @@
 <template>
   <div class="animated fadeIn list-item">
     <b-card v-show="showList">
-      <div slot="header">DAFTAR ITEM BARANG  
+      <div slot="header">Daftar Item Barang
         <div class="card-header-actions">
-          <b-button variant="primary mr-1" @click="add">Add</b-button>
-          <b-button variant="primary mr-1" @click="showFilter=!showFilter"><i class="fa fa-filter"></i> Filter</b-button> 
-          <b-button variant="primary mr-1" @click="close()" > <i class="fa fa-close"></i> Close</b-button>
+          <b-button variant="primary" size="sm" class="mr-1" @click="add"><i class="fa fa-plus"></i> Tambah</b-button>
+          <b-button variant="outline-secondary" size="sm" class="mr-1" @click="showFilter=!showFilter"><i class="fa fa-filter"></i></b-button>
         </div>
       </div>
       <b-row v-if="showFilter" class="ml-2 mr-2">
@@ -25,11 +24,11 @@
         </b-col>        
       </b-row>                      
           <b-table
-            class="mb-0 text-nowrap"
+            class="mb-0"
             ref="tblMenu"
             responsive
-            striped hover 
-            style="font-size:smaller;" 
+            hover
+            style="font-size:13px;"
             :items="tblDataItems"
             :fields="fields"
             :sort-by.sync="tblData.sortBy"
@@ -92,7 +91,7 @@
       <p class="mb-1">1 record is about to be permanently deleted</p>
       <p class="font-weight-bold m-0 text-danger">Are you sure about doing this?</p>
     </b-modal>
-    <b-modal v-model="showEditItem"  header-bg-variant="primary" title="Form Edit -  Item Barang" size="lg" :centered="true" hide-footer >
+    <b-modal v-model="showEditItem" title="Edit Item Barang" size="lg" :centered="true" hide-footer>
       <b-card>
               <b-input-group>
                   <b-input-group-prepend><label>Nama Barang</label></b-input-group-prepend>
@@ -118,7 +117,7 @@
             </b-row>
       </b-card>      
     </b-modal>
-    <b-modal v-model="showEditGambar"  header-bg-variant="primary" title="Form Edit - Gambar  Barang" size="lg" :centered="true" hide-footer >
+    <b-modal v-model="showEditGambar" title="Edit Gambar Barang" size="lg" :centered="true" hide-footer>
       <b-card>
               <b-input-group>
                   <b-input-group-prepend><label>Nama Barang</label></b-input-group-prepend>
