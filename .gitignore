@@ -1,0 +1,12 @@
+venv/
+img/
+index_barang.bin
+**/*.pyc
+__pycache__/
+
+client/node_modules
+client/dist
+
+app/.env
+cert.pem
+key.pem
