@@ -1,78 +1,83 @@
 <template>
-  <div>
-    <b-row>
-      <b-col lg="7">
-          <!-- <video ref="video" width="640" height="480" autoplay muted></video>
-        <canvas ref="canvas" width="640" height="480" style="display: none;"></canvas> -->
-        <video ref="video" width="480" height="360" autoplay muted></video>
-        <canvas ref="canvas" width="480" height="360" style="display: none;"></canvas>
-      </b-col>
-      <b-col lg="5">
-        <div style="height:300; ">
-            <img v-if="capturedImage" :src="capturedImage" alt="Captured" width="300" />
-        </div>
-          <b-input-group class="mt-4 ml-4">
-              <b-input-group-append>
-                  <b-button variant="primary mr-1" @click="capture">Ambil <i class="fa fa-camera"></i></b-button>
-              </b-input-group-append>
-          </b-input-group>
-      </b-col>
-    </b-row>  
+  <div class="camera-capture">
+    <div class="video-box">
+      <video ref="video" autoplay muted playsinline></video>
+      <canvas ref="canvas" style="display:none;"></canvas>
+    </div>
+    <div class="capture-row">
+      <img v-if="capturedImage" :src="capturedImage" class="preview-thumb" alt="Preview" />
+      <b-button variant="primary" class="btn-ambil" @click="capture">
+        <i class="fa fa-camera"></i> Ambil Foto
+      </b-button>
+    </div>
   </div>
 </template>
+
+<style scoped>
+.camera-capture { width: 100%; }
+
+.video-box {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #0f172a;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.video-box video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.capture-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.btn-ambil { flex-shrink: 0; }
+
+.preview-thumb {
+  height: 48px;
+  width: 72px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+</style>
 
 <script>
 export default {
   data() {
-    return {
-      capturedImage: null,
-    };
+    return { capturedImage: null };
   },
-  computed: {
-    stream() {
-      return this.$store.state.stream.stream;
-    }
-  },
-  // mounted() {
-  //     // this.initCamera();
-  //   if (this.stream) {
-  //     this.$refs.video.srcObject = this.stream;
-  //   }
-  // }, 
   mounted() {
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
-      .then((stream) => {
+    navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, aspectRatio: { ideal: 16/9 } }
+    })
+      .then(stream => {
         this.$store.commit('setStream', stream);
-      this.$refs.video.srcObject = stream
-      })
-      .catch((err) => {
-        console.error('Webcam access denied:', err);
-      });
-  },  
-  methods: {
-    async initCamera() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } });
         this.$refs.video.srcObject = stream;
-      } catch (error) {
-        console.error("Error accessing webcam:", error);
-        alert("Tidak bisa mengakses webcam!");
-      }
-    },
+      })
+      .catch(err => console.error('Webcam access denied:', err));
+  },
+  methods: {
     capture() {
-      const video = this.$refs.video;
+      const video  = this.$refs.video;
       const canvas = this.$refs.canvas;
-      const context = canvas.getContext("2d");
-
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      this.capturedImage = canvas.toDataURL("image/jpeg");  // Base64 image
-      this.$emit("image-captured", this.capturedImage);  // Kirim ke parent
+      canvas.width  = video.videoWidth  || 1280;
+      canvas.height = video.videoHeight || 720;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      this.capturedImage = canvas.toDataURL('image/jpeg');
+      this.$emit('image-captured', this.capturedImage);
     },
   },
   beforeDestroy() {
-    if (this.$refs.video.srcObject) {
-      this.$refs.video.srcObject.getTracks().forEach((track) => track.stop());
-    }
+    const v = this.$refs.video;
+    if (v && v.srcObject) v.srcObject.getTracks().forEach(t => t.stop());
   },
 };
 </script>

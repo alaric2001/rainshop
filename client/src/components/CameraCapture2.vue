@@ -1,65 +1,63 @@
 <template>
-  <div>
-    <b-row class="justify-content-center">
-        <video ref="video" width="480" height="360" autoplay muted></video>
-        <canvas ref="canvas" width="480" height="360" style="display: none;"></canvas>
-            <b-button variant="primary" @click="capture">Ambil <i class="fa fa-camera"></i></b-button>
-    </b-row>  
+  <div class="camera-capture2">
+    <div class="video-box">
+      <video ref="video" autoplay muted playsinline></video>
+      <canvas ref="canvas" style="display:none;"></canvas>
+    </div>
+    <b-button variant="primary" class="mt-2 w-100" @click="capture">
+      <i class="fa fa-camera"></i> Ambil Foto
+    </b-button>
   </div>
 </template>
+
+<style scoped>
+.camera-capture2 { width: 100%; }
+
+.video-box {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #0f172a;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.video-box video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+</style>
 
 <script>
 export default {
   data() {
-    return {
-      capturedImage: null,
-    };
+    return { capturedImage: null };
   },
-  computed: {
-    stream() {
-      return this.$store.state.stream.stream;
-    }
-  },
-  // mounted() {
-  //     // this.initCamera();
-  //   if (this.stream) {
-  //     this.$refs.video.srcObject = this.stream;
-  //   }
-  // }, 
   mounted() {
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
-      .then((stream) => {
+    navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, aspectRatio: { ideal: 16/9 } }
+    })
+      .then(stream => {
         this.$store.commit('setStream', stream);
-      this.$refs.video.srcObject = stream
-      })
-      .catch((err) => {
-        console.error('Webcam access denied:', err);
-      });
-  },  
-  methods: {
-    async initCamera() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } });
         this.$refs.video.srcObject = stream;
-      } catch (error) {
-        console.error("Error accessing webcam:", error);
-        alert("Tidak bisa mengakses webcam!");
-      }
-    },
+      })
+      .catch(err => console.error('Webcam access denied:', err));
+  },
+  methods: {
     capture() {
-      const video = this.$refs.video;
+      const video  = this.$refs.video;
       const canvas = this.$refs.canvas;
-      const context = canvas.getContext("2d");
-
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      this.capturedImage = canvas.toDataURL("image/jpeg");  // Base64 image
-      this.$emit("image-captured", this.capturedImage);  // Kirim ke parent
+      canvas.width  = video.videoWidth  || 1280;
+      canvas.height = video.videoHeight || 720;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      this.capturedImage = canvas.toDataURL('image/jpeg');
+      this.$emit('image-captured', this.capturedImage);
     },
   },
   beforeDestroy() {
-    if (this.$refs.video.srcObject) {
-      this.$refs.video.srcObject.getTracks().forEach((track) => track.stop());
-    }
+    const v = this.$refs.video;
+    if (v && v.srcObject) v.srcObject.getTracks().forEach(t => t.stop());
   },
 };
 </script>

@@ -305,38 +305,11 @@
 }
 
 // ── Kamera ────────────────────────────────────────────────────
+// Wrapper hanya sebagai container — video-box dan styling ada di dalam komponen CameraCapture3
 .camera-wrapper {
   width: 100%;
-  overflow: hidden;
   border-radius: 8px;
-  background: #0f172a;
-
-  // Paksa video agar responsif
-  ::v-deep video {
-    width: 100% !important;
-    height: auto !important;
-    max-height: 280px;
-    object-fit: cover;
-    display: block;
-  }
-
-  ::v-deep .row {
-    margin: 0;
-    align-items: stretch;
-  }
-
-  // Kolom tombol kamera
-  ::v-deep .col-2 {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    padding: 8px 4px;
-    background: #1e293b;
-    gap: 4px;
-
-    span { color: #94a3b8; font-size: 10px; text-align: center; }
-    .btn { font-size: 11px; padding: 6px 4px; width: 100%; }
-  }
+  overflow: hidden;
 }
 
 // ── Image grid ────────────────────────────────────────────────
