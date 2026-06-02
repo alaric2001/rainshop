@@ -1,12 +1,61 @@
+# ── Python ───────────────────────────────────────────────────
 venv/
+.venv/
+__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
+*.egg-info/
+.eggs/
+dist/
+build/
+*.so
+
+# ── Environment & Secrets ────────────────────────────────────
+.env
+.env.*
+!.env.example
+app/.env
+client/.env.local
+client/.env.*.local
+client/.env.production
+
+# ── SSL Certificates ─────────────────────────────────────────
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# ── AI / FAISS Data (auto-generated) ─────────────────────────
 img/
 index_barang.bin
-**/*.pyc
-__pycache__/
 
-client/node_modules
-client/dist
+# ── Node.js ──────────────────────────────────────────────────
+client/node_modules/
+client/dist/
+client/.npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-app/.env
-cert.pem
-key.pem
+# ── IDE & Editor ─────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ── OS ───────────────────────────────────────────────────────
+Desktop.ini
+$RECYCLE.BIN/
+
+# ── Logs ─────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Database ─────────────────────────────────────────────────
+*.sqlite
+*.db

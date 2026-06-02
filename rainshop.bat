@@ -15,25 +15,27 @@ start cmd /k "cd /d C:\Users\Rain Shop\Documents\SistemRainShop\rainshop && uvic
 REM === Jalankan Frontend (static webapp - HTTPS) ===
 start cmd /k "cd /d C:\Users\Rain Shop\Documents\SistemRainShop\rainshop\webapp && http-server -p 8080 --host 0.0.0.0 -S -C ..\cert.pem -K ..\key.pem"
 
+REM === Jalankan ngrok (expose backend ke internet) ===
+start cmd /k "ngrok http --domain=cube-judicial-amber.ngrok-free.dev https://localhost:8000"
+
 REM === Info akses ===
 echo.
-echo ============================================
-echo   Rainshop HTTPS sudah berjalan!
-echo ============================================
-echo   PC / Lokal  : https://127.0.0.1:8080
-echo   Handphone   : https://%LOCAL_IP%:8080
+echo ============================================================
+echo   Rainshop sudah berjalan!
+echo ============================================================
+echo   [LAN]      PC     : https://127.0.0.1:8080
+echo   [LAN]      HP     : https://%LOCAL_IP%:8080
+echo   [INTERNET] Demo   : https://alaric2001.github.io/rainshop/
+echo   [INTERNET] API    : https://cube-judicial-amber.ngrok-free.dev
 echo.
-echo   PERTAMA KALI di HP:
-echo   1. Buka https://%LOCAL_IP%:8080
-echo   2. Ketuk "Lanjutkan" / "Advanced - Proceed"
-echo   3. Lakukan hal yang sama di https://%LOCAL_IP%:8000
-echo ============================================
+echo   PERTAMA KALI akses LAN dari HP:
+echo   1. Buka https://%LOCAL_IP%:8000  -> Advanced -> Proceed
+echo   2. Buka https://%LOCAL_IP%:8080  -> Advanced -> Proceed
+echo ============================================================
 echo.
 
-REM === Tunggu server siap ===
-timeout /t 45 >nul
-
-REM === Buka Edge di PC ===
+REM === Tunggu server siap lalu buka browser ===
+timeout /t 10 >nul
 start "" "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" --new-tab https://127.0.0.1:8080/#/item-input
 
 pause
