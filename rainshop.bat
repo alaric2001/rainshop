@@ -16,7 +16,8 @@ REM === Jalankan Frontend (static webapp - HTTPS) ===
 start cmd /k "cd /d C:\Users\Rain Shop\Documents\SistemRainShop\rainshop\webapp && http-server -p 8080 --host 0.0.0.0 -S -C ..\cert.pem -K ..\key.pem"
 
 REM === Jalankan ngrok (expose backend ke internet) ===
-start cmd /k "ngrok http --domain=cube-judicial-amber.ngrok-free.dev https://localhost:8000"
+set NGROK=%LOCALAPPDATA%\Microsoft\WinGet\Packages\Ngrok.Ngrok_Microsoft.Winget.Source_8wekyb3d8bbwe\ngrok.exe
+start cmd /k ""%NGROK%" http --domain=cube-judicial-amber.ngrok-free.dev https://localhost:8000"
 
 REM === Info akses ===
 echo.

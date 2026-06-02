@@ -21,16 +21,23 @@ Untuk menjalankan kedua aplikasi sekaligus, klik **`rainshop.bat`** di root repo
 ```
 rainshop/
 ├── app/                  # Kode backend FastAPI
+│   ├── .env              # Konfigurasi DB (tidak di-commit, lihat .env.example)
+│   └── .env.example      # Template — salin ke .env lalu isi password
 ├── client/               # Source code frontend Vue.js 2
+│   ├── .env.example           # Template env development
+│   └── .env.production.example # Template env production (ngrok URL)
 ├── webapp/               # Build production frontend (hasil npm run build)
-├── db_script/            # Script SQL setup database
+├── migrations/           # Alembic database migrations
+├── db_script/
+│   └── rainshop_schema.sql  # Schema lengkap (single file, fresh install)
 ├── libusb-1.0.29/        # DLL untuk thermal printer USB
 ├── img/                  # Gambar item barang (auto-generated, tidak di-commit)
 ├── index_barang.bin      # FAISS index (auto-generated, tidak di-commit)
 ├── cert.pem              # SSL certificate self-signed (tidak di-commit)
 ├── key.pem               # SSL private key (tidak di-commit)
+├── alembic.ini           # Konfigurasi Alembic
 ├── requirements.txt      # Dependensi Python
-├── rainshop.bat          # Launcher: jalankan backend + frontend + buka browser
+├── rainshop.bat          # Launcher: backend + frontend + ngrok + buka browser
 └── build-client.bat      # Build frontend dan copy ke webapp/
 ```
 
@@ -60,14 +67,15 @@ pip freeze > requirements.txt
 
 ### Konfigurasi Database
 
-File `app/.env` (tidak di-commit):
+Salin `app/.env.example` → `app/.env` lalu isi:
 ```
 DB_HOST=localhost
 DB_PORT=3306
 DB_USER=root
-DB_PASSWORD=12345
+DB_PASSWORD=your_password
 DB_NAME=rainshop
 ```
+File `app/.env` tidak di-commit (ada di `.gitignore`).
 
 ### Arsitektur Backend
 
@@ -116,36 +124,43 @@ app/
 ### Alur Build
 
 ```powershell
-# Development (hot-reload, tanpa HTTPS)
+# Development (hot-reload)
 cd client
 npm run serve
 
-# Production build → copy ke webapp/
-# Cara 1: klik build-client.bat
-# Cara 2: manual
+# Build lokal (untuk LAN) → copy ke webapp/
+build-client.bat
+
+# Deploy ke GitHub Pages (production)
 cd client
-npm run build
-xcopy /E /Y dist\* ..\webapp\
+npm run deploy
 ```
 
-`client/vue.config.js` menggunakan `outputDir: 'dist'` (bukan langsung ke `webapp/` karena folder webapp bisa terkunci oleh http-server yang sedang berjalan). Setelah build, hasil di `client/dist/` dicopy manual ke `webapp/`.
+`client/vue.config.js`:
+- Development: `publicPath: ''`
+- Production: `publicPath: '/rainshop/'` (GitHub Pages repo name)
+- `outputDir: 'dist'` — bukan langsung ke `webapp/` karena bisa terkunci oleh http-server
 
 ### Konfigurasi API URL
 
-`client/src/main.js` — URL API mengikuti protokol browser secara dinamis:
+`client/src/main.js`:
 ```javascript
-axios.defaults.baseURL = `${window.location.protocol}//${window.location.hostname}:8000`;
+// Production (GitHub Pages): pakai VUE_APP_BASE_API dari .env.production (ngrok URL)
+// Development / LAN: ikut hostname browser secara dinamis
+axios.defaults.baseURL = process.env.NODE_ENV === 'production'
+    ? process.env.VUE_APP_BASE_API
+    : `${window.location.protocol}//${window.location.hostname}:8000`;
 ```
-- Akses via HTTP → API ke `http://...:8000`
-- Akses via HTTPS (dari HP) → API ke `https://...:8000`
 
-File `client/.env` sudah tidak dipakai untuk baseURL (diabaikan).
+File env frontend (semua **tidak di-commit**, ada template `.example`-nya):
+- `client/.env` — development: `VUE_APP_BASE_API=http://127.0.0.1:8000`
+- `client/.env.production` — production: `VUE_APP_BASE_API=https://<ngrok-domain>`
 
 ### Arsitektur Frontend
 
 ```
 client/src/
-├── main.js           # Setup Vue, axios baseURL dinamis, plugin global
+├── main.js           # Setup Vue, axios baseURL, plugin global
 ├── routes.js         # Vue Router — urutan: /item-input, /item-list, /search, /penjualan
 ├── store.js          # Vuex store (termasuk state stream kamera)
 ├── App.vue           # Bottom navigation bar (fixed, z-index: 9999)
@@ -153,9 +168,9 @@ client/src/
 │   ├── items.js      # Axios calls ke /items dan /images
 │   └── sales.js      # Axios calls ke /sales dan /print-struk
 ├── components/
-│   ├── CameraCapture.vue   # Kamera tunggal + tombol Ambil (dipakai di orderfrm, SearchItem)
-│   ├── CameraCapture2.vue  # Kamera tunggal versi sederhana (dipakai di item-form edit gambar)
-│   ├── CameraCapture3.vue  # Kamera dengan 3 tombol ambil Gambar#1/2/3 (dipakai di item-form input)
+│   ├── CameraCapture.vue   # Kamera tunggal + tombol Ambil (orderfrm, SearchItem)
+│   ├── CameraCapture2.vue  # Kamera tunggal sederhana (item-form edit gambar)
+│   ├── CameraCapture3.vue  # Kamera 3 tombol Foto#1/2/3 (item-form input baru)
 │   ├── calculator.vue
 │   └── my-number.vue       # Input angka dengan format separator
 └── views/
@@ -180,45 +195,57 @@ client/src/
 Semua komponen kamera menggunakan:
 ```javascript
 navigator.mediaDevices.getUserMedia({
-  video: { facingMode: { ideal: 'environment' } }  // default kamera belakang HP
+  video: { facingMode: { ideal: 'environment' }, aspectRatio: { ideal: 16/9 } }
 })
 ```
-`ideal` berarti: utamakan kamera belakang, fallback ke kamera apapun jika tidak ada (misalnya di PC).
+- `ideal: 'environment'` — utamakan kamera belakang HP, fallback ke kamera apapun di PC
+- `aspectRatio: 16/9` — tampilan kamera menyerupai webcam
+- Video di-render dengan `aspect-ratio: 16/9` + `object-fit: cover` via CSS
 
-**Kamera hanya bekerja di HTTPS atau localhost.** Di jaringan LAN via IP, wajib pakai HTTPS.
+**Kamera hanya bekerja di HTTPS atau localhost.** Di LAN via IP → pakai self-signed cert. Dari internet → pakai ngrok (otomatis HTTPS).
 
 ### Desain UI
 
 - **Light mode** — primary color `#2563eb` (biru), background `#f1f5f9`
-- **Mobile-first** — layout responsif, bottom navigation bar
-- `html, body { overflow-x: hidden }` — penting untuk mencegah horizontal scroll yang membuat `position: fixed` bottom-nav bergeser di mobile
-- `orderfrm.vue`: tab switcher mobile (Cari Barang | Keranjang), layout side-by-side di desktop
+- **Mobile-first** — layout responsif, bottom navigation bar (z-index: 9999)
+- `html, body { overflow-x: hidden }` — wajib agar `position: fixed` bottom-nav tidak bergeser saat ada horizontal overflow
+- `orderfrm.vue`: tab switcher mobile (Cari Barang | Keranjang), side-by-side di desktop
+- Kamera dan hasil pencarian menggunakan layout dua kolom yang sama di semua halaman (`flex: 1 1 340px` / `flex: 1 1 280px`)
 
 ---
 
-## HTTPS (Akses dari Handphone)
+## HTTPS & Deployment
 
-Browser mobile memblokir akses kamera di halaman HTTP. Solusi: self-signed SSL certificate.
+### Mode LAN (akses dari HP di WiFi yang sama)
 
-### Generate Certificate (hanya sekali)
-
-Membutuhkan OpenSSL dari Git for Windows:
+Self-signed certificate — generate sekali:
 ```powershell
 $openssl = "C:\Program Files\Git\usr\bin\openssl.exe"
 & $openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 825 -nodes `
   -subj "/CN=rainshop-local/O=Rainshop/C=ID" `
   -addext "subjectAltName=IP:192.168.1.15,IP:127.0.0.1,DNS:localhost"
 ```
-Ganti `192.168.1.15` dengan IP lokal PC yang sebenarnya.
+Ganti `192.168.1.15` dengan IP lokal PC. `cert.pem` dan `key.pem` di-ignore git.
 
-`cert.pem` dan `key.pem` di-ignore oleh git (tidak di-commit).
+Akses dari HP (pertama kali): buka `https://[IP]:8000` → Proceed, lalu `https://[IP]:8080` → Proceed.
 
-### Cara Akses dari HP (pertama kali)
+### Mode Internet (GitHub Pages + ngrok)
 
-1. Jalankan `rainshop.bat`
-2. Di HP, buka `https://[IP-PC]:8000` → ketuk **Advanced → Proceed** (izinkan API)
-3. Buka `https://[IP-PC]:8080` → ketuk **Advanced → Proceed** (izinkan frontend)
-4. Kamera siap digunakan
+Frontend di-host di **GitHub Pages**: `https://alaric2001.github.io/rainshop/`
+
+Backend di-expose via **ngrok static domain** (URL tidak berubah meski ngrok di-restart):
+```powershell
+# Setup sekali
+ngrok config add-authtoken <TOKEN>
+
+# Jalankan setiap demo (sudah otomatis di rainshop.bat)
+ngrok http --domain=cube-judicial-amber.ngrok-free.dev https://localhost:8000
+```
+
+Setelah ganti ngrok domain, update `client/.env.production` lalu:
+```powershell
+cd client && npm run deploy
+```
 
 ---
 
@@ -230,9 +257,8 @@ Jalankan **satu file ini** pada database kosong:
 ```
 db_script/rainshop_schema.sql
 ```
-File ini menggabungkan semua script lama dari `db_script/2025-07-29/` s.d. `2025-08-07/` menjadi satu skema final yang siap pakai.
 
-Objek yang dibuat (urutan sesuai dependensi):
+Objek yang dibuat:
 | Objek | Tipe | Keterangan |
 |-------|------|------------|
 | `itembarang` | Tabel | Master barang — item_id, nama, harga, stok, isactive, image_id, modified |
@@ -245,49 +271,36 @@ Objek yang dibuat (urutan sesuai dependensi):
 
 ### Migrasi dengan Alembic
 
-Alembic dipakai untuk melacak perubahan skema database secara terkontrol.
-
 ```
 migrations/
-├── env.py           # Konfigurasi: baca .env, import semua model, exclude view
-├── versions/        # File-file migrasi (satu file per perubahan)
-└── script.py.mako   # Template file migrasi
-alembic.ini          # Konfigurasi Alembic (URL diisi otomatis dari .env)
+├── env.py           # Baca app/.env, import semua model, exclude view dari autogenerate
+├── versions/        # File migrasi (satu file per perubahan skema)
+└── script.py.mako
+alembic.ini          # URL DB diisi otomatis dari migrations/env.py
 ```
 
-**Perintah Alembic yang sering dipakai:**
+**Perintah:**
 ```powershell
-# Lihat versi DB saat ini
-alembic current
-
-# Lihat riwayat migrasi
-alembic history
-
-# Buat migrasi baru setelah mengubah model SQLAlchemy
-alembic revision --autogenerate -m "deskripsi_perubahan"
-
-# Jalankan semua migrasi yang belum diaplikasikan
-alembic upgrade head
-
-# Rollback satu versi
-alembic downgrade -1
-
-# Tandai DB sebagai sudah di versi head (tanpa menjalankan migrasi)
-alembic stamp head
+alembic current                                        # versi DB saat ini
+alembic revision --autogenerate -m "nama_perubahan"   # buat migrasi baru
+alembic upgrade head                                   # terapkan ke DB
+alembic downgrade -1                                   # rollback satu versi
+alembic stamp head                                     # tandai DB sudah di versi head
 ```
 
-**Alur kerja mengubah skema:**
+**Alur kerja:**
 1. Ubah model di `app/models/`
-2. `alembic revision --autogenerate -m "nama_perubahan"` → cek file yang dibuat di `migrations/versions/`
+2. `alembic revision --autogenerate -m "..."` → review file yang dibuat
 3. `alembic upgrade head` → terapkan ke database
 
-**Catatan:** View (`vw_itembarang`, `vw_sales_line`) dan stored procedure dikecualikan dari Alembic — dikelola manual via `db_script/rainshop_schema.sql`.
+View dan stored procedure **tidak** di-track Alembic — dikelola manual via `db_script/rainshop_schema.sql`.
 
 ---
 
 ## Catatan Penting
 
 - Uvicorn **harus dijalankan dari root repo** agar path `img/` dan `index_barang.bin` benar.
-- Library `gtts` wajib terinstall (`pip install gtts`) — jika tidak, backend gagal start.
-- Jangan jalankan `npm run build` saat `http-server` sedang melayani folder `webapp/` — folder akan terkunci (`EBUSY`). Gunakan `build-client.bat` yang menjalankan build ke `dist/` lalu copy.
-- Log `GET /.well-known/appspecific/com.chrome.devtools.json 404` dan `.js.map` dari http-server adalah normal — bukan error.
+- Library `gtts` wajib terinstall — jika tidak, backend gagal start dengan `ModuleNotFoundError`.
+- Jangan jalankan `npm run build` saat `http-server` sedang melayani `webapp/` — folder terkunci (`EBUSY`). Gunakan `build-client.bat`.
+- Log `GET /.well-known/appspecific/com.chrome.devtools.json 404` dan `.js.map` adalah normal — bukan error.
+- `client/.env` dan `client/.env.production` **tidak di-commit** — salin dari file `.example` masing-masing.
