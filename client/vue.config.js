@@ -1,6 +1,6 @@
 // vue.config.js
-// Output ke 'dist' dulu (default), lalu rainshop.bat atau build-copy.bat yang memindahkannya ke webapp/
 module.exports = {
-    publicPath: '',
+    // GitHub Pages: /rainshop/  |  Lokal: '' (root)
+    publicPath: process.env.NODE_ENV === 'production' ? '/rainshop/' : '',
     outputDir: 'dist'
 }
