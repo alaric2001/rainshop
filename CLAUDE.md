@@ -224,14 +224,64 @@ Ganti `192.168.1.15` dengan IP lokal PC yang sebenarnya.
 
 ## Database (MySQL)
 
-Script SQL di `db_script/2025-07-29/`:
+### Schema Lengkap (Fresh Install)
 
-- **`itembarang`** — master data barang (item_id UUID, nama, harga, stok, isactive)
-- **`item_images`** — gambar per barang, tiap baris punya `faiss_index` unik
-- **`sales_header`** + **`sales_line`** — transaksi penjualan
-- **`vw_itembarang`** — view join `itembarang` + `item_images` (dipakai FAISS search)
-- **`vw_sales_line`** — view detail transaksi
-- **`usp_sales_nomorbaru`** — stored procedure generate nomor transaksi
+Jalankan **satu file ini** pada database kosong:
+```
+db_script/rainshop_schema.sql
+```
+File ini menggabungkan semua script lama dari `db_script/2025-07-29/` s.d. `2025-08-07/` menjadi satu skema final yang siap pakai.
+
+Objek yang dibuat (urutan sesuai dependensi):
+| Objek | Tipe | Keterangan |
+|-------|------|------------|
+| `itembarang` | Tabel | Master barang — item_id, nama, harga, stok, isactive, image_id, modified |
+| `item_images` | Tabel | Gambar per barang, tiap baris punya `faiss_index` unik |
+| `sales_header` | Tabel | Header transaksi penjualan |
+| `sales_line` | Tabel | Detail baris transaksi |
+| `vw_itembarang` | View | Join itembarang + item_images, dipakai FAISS search |
+| `vw_sales_line` | View | Join sales_line + itembarang untuk detail transaksi |
+| `usp_sales_nomorbaru` | Procedure | Generate nomor transaksi otomatis (format S2506-0001) |
+
+### Migrasi dengan Alembic
+
+Alembic dipakai untuk melacak perubahan skema database secara terkontrol.
+
+```
+migrations/
+├── env.py           # Konfigurasi: baca .env, import semua model, exclude view
+├── versions/        # File-file migrasi (satu file per perubahan)
+└── script.py.mako   # Template file migrasi
+alembic.ini          # Konfigurasi Alembic (URL diisi otomatis dari .env)
+```
+
+**Perintah Alembic yang sering dipakai:**
+```powershell
+# Lihat versi DB saat ini
+alembic current
+
+# Lihat riwayat migrasi
+alembic history
+
+# Buat migrasi baru setelah mengubah model SQLAlchemy
+alembic revision --autogenerate -m "deskripsi_perubahan"
+
+# Jalankan semua migrasi yang belum diaplikasikan
+alembic upgrade head
+
+# Rollback satu versi
+alembic downgrade -1
+
+# Tandai DB sebagai sudah di versi head (tanpa menjalankan migrasi)
+alembic stamp head
+```
+
+**Alur kerja mengubah skema:**
+1. Ubah model di `app/models/`
+2. `alembic revision --autogenerate -m "nama_perubahan"` → cek file yang dibuat di `migrations/versions/`
+3. `alembic upgrade head` → terapkan ke database
+
+**Catatan:** View (`vw_itembarang`, `vw_sales_line`) dan stored procedure dikecualikan dari Alembic — dikelola manual via `db_script/rainshop_schema.sql`.
 
 ---
 

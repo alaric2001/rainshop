@@ -1,94 +1,178 @@
-# Rainshop — Sistem POS Toko Pernak-Pernik
+<div align="center">
 
-Sistem Point of Sale dengan fitur pencarian barang menggunakan **kamera + AI** (tanpa barcode).  
-Kasir cukup arahkan barang ke kamera — sistem mengenali barang secara otomatis menggunakan FAISS + ResNet50.
+# 🛍️ Rainshop POS
 
----
+### Sistem Point of Sale dengan AI Image Search — Tanpa Barcode
 
-## Struktur Repo
+*Kasir cukup arahkan barang ke kamera. Sistem mengenali sendiri.*
 
-```
-rainshop/
-├── app/              ← Backend FastAPI (Python)
-├── client/           ← Frontend Vue.js 2 (source code)
-├── webapp/           ← Frontend build hasil (static, dijalankan http-server)
-├── db_script/        ← Script SQL untuk setup database MySQL
-├── libusb-1.0.29/    ← DLL untuk thermal printer USB
-├── img/              ← Gambar item (dibuat otomatis, tidak di-commit)
-├── index_barang.bin  ← FAISS index (dibuat otomatis, tidak di-commit)
-├── requirements.txt  ← Dependensi Python
-└── rainshop.bat      ← Launcher: jalankan backend + frontend + buka browser
-```
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.116-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com)
+[![Vue.js](https://img.shields.io/badge/Vue.js-2.x-4FC08D?style=flat-square&logo=vue.js)](https://vuejs.org)
+[![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python)](https://python.org)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=flat-square&logo=mysql)](https://mysql.com)
+[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.19-FF6F00?style=flat-square&logo=tensorflow)](https://tensorflow.org)
+[![FAISS](https://img.shields.io/badge/FAISS-Meta_AI-0064E0?style=flat-square)](https://github.com/facebookresearch/faiss)
+
+</div>
 
 ---
 
-## Cara Menjalankan (Pertama Kali)
+## ✨ Fitur Unggulan
 
-### 1. Setup Database MySQL
+### 🤖 AI Image Similarity Search
+Tidak ada barcode? Tidak masalah. Sistem menggunakan **ResNet50** (ImageNet) untuk mengekstrak vektor fitur gambar 2048 dimensi, lalu **FAISS** (Facebook AI Similarity Search) untuk menemukan barang paling mirip dalam milidetik — teknologi yang sama digunakan Meta untuk pengenalan wajah di skala miliaran foto.
 
-Jalankan script SQL berikut secara berurutan dari folder `db_script/2025-07-29/`:
+### 📱 Mobile-First & Responsive
+Diakses dari PC kasir maupun smartphone kasir lain di jaringan yang sama. Tampilan otomatis menyesuaikan layar — tab switcher pada mobile, split-panel pada desktop.
+
+### 🔒 HTTPS untuk Akses Kamera Mobile
+Browser mobile memblokir akses kamera di HTTP. Rainshop menjalankan frontend dan backend via **HTTPS** (self-signed cert) agar kamera HP bisa digunakan dari jaringan LAN.
+
+### 🖨️ Thermal Printer
+Cetak struk langsung ke printer termal USB menggunakan **python-escpos** — format struk otomatis dengan nomor transaksi berurutan.
+
+---
+
+## 🏗️ Arsitektur
 
 ```
-00 rainshop.sql          ← Buat tabel & view utama
-01 vw_itembarang.sql     ← View untuk FAISS search
-02 ALTER itembarang ...  ← Tambah kolom image_id
-03 CREATE TABLE sales... ← Tabel transaksi
-04 usp_sales_nomorbaru.. ← Stored procedure nomor transaksi
+┌─────────────────────────────────────────────────────────┐
+│                    Browser / HP Kasir                   │
+│              Vue.js 2  ·  BootstrapVue  ·  Axios        │
+└──────────────────────┬──────────────────────────────────┘
+                       │ HTTPS :8080
+┌──────────────────────▼──────────────────────────────────┐
+│               webapp/  (static build)                   │
+│                    http-server                          │
+└──────────────────────┬──────────────────────────────────┘
+                       │ HTTPS :8000
+┌──────────────────────▼──────────────────────────────────┐
+│              FastAPI  (Python 3.11)                     │
+│   /items  /images  /sales  /print-struk  /voiceover     │
+├─────────────────┬────────────────────────────────────── ┤
+│   SQLAlchemy    │   ResNet50 + FAISS (image search)     │
+│   PyMySQL       │   python-escpos (thermal printer)     │
+└────────┬────────┴────────────────────────────────────── ┘
+         │
+┌────────▼────────┐
+│   MySQL 8.0     │
+│  itembarang     │
+│  item_images    │
+│  sales_header   │
+│  sales_line     │
+└─────────────────┘
 ```
 
-### 2. Konfigurasi Backend
+---
 
-Buat file `app/.env` dengan isi:
+## 🧰 Tech Stack
 
+| Layer | Teknologi |
+|-------|-----------|
+| **Backend** | FastAPI, SQLAlchemy 2, PyMySQL, Alembic |
+| **AI / ML** | TensorFlow 2.19, ResNet50, FAISS-CPU |
+| **Frontend** | Vue.js 2, BootstrapVue, Vuex, Vue Router |
+| **Database** | MySQL 8, stored procedure, views |
+| **Hardware** | Thermal printer USB (python-escpos, libusb) |
+| **Infra** | HTTPS (self-signed), http-server, Uvicorn |
+
+---
+
+## 🚀 Quick Start
+
+### Prasyarat
+- Python 3.11+
+- Node.js 18+
+- MySQL 8.0
+- Git for Windows (menyertakan OpenSSL)
+
+### 1 — Database
+
+```sql
+-- Jalankan satu file ini pada database kosong:
+source db_script/rainshop_schema.sql
 ```
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=your_password
-DB_NAME=rainshop
-```
 
-### 3. Install Dependensi Python
+### 2 — Backend
 
 ```powershell
+# Konfigurasi database
+copy app\.env.example app\.env   # lalu isi DB_PASSWORD
+
+# Install dependensi
 pip install -r requirements.txt
+
+# Generate SSL certificate (untuk akses kamera dari HP)
+$ssl = "C:\Program Files\Git\usr\bin\openssl.exe"
+& $ssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 825 -nodes `
+  -subj "/CN=rainshop-local" `
+  -addext "subjectAltName=IP:$(
+    (Get-NetIPAddress -AddressFamily IPv4 | Where IPAddress -match '^192\.' | Select -First 1).IPAddress
+  ),IP:127.0.0.1,DNS:localhost"
 ```
 
-### 4. Jalankan Aplikasi
-
-Klik dua kali **`rainshop.bat`** — akan membuka dua terminal (backend & frontend) dan browser secara otomatis.
-
-Atau jalankan backend manual dari root repo:
-
-```powershell
-uvicorn app.main:app --reload
-```
-
----
-
-## Pengembangan Frontend
-
-Source code Vue.js ada di `client/`. Folder `webapp/` adalah hasil build production yang dilayani oleh `http-server` saat `rainshop.bat` dijalankan.
+### 3 — Frontend
 
 ```powershell
 cd client
-npm install        # hanya pertama kali
-npm run serve      # development dengan hot-reload (port 8081)
-npm run build      # build production → output ke ../webapp/
+npm install
+npm run build        # output → ../webapp/
 ```
 
-Konfigurasi URL API ada di `client/.env`:
+### 4 — Jalankan
+
+```powershell
+# Semua sekaligus (backend + frontend + buka browser):
+.\rainshop.bat
+
+# Atau manual:
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --ssl-keyfile key.pem --ssl-certfile cert.pem --reload
+```
+
+> **Akses dari HP:** Buka `https://<IP-PC>:8080` → ketuk *Advanced → Proceed* dua kali (frontend & API).
+
+---
+
+## 📁 Struktur Repository
 
 ```
-VUE_APP_BASE_API=http://127.0.0.1:8000
+rainshop/
+├── app/                  # Backend FastAPI
+│   ├── models/           #   ORM models (SQLAlchemy)
+│   ├── schemas/          #   Pydantic request/response
+│   ├── crud/             #   Database operations
+│   ├── routers/          #   API endpoints
+│   └── utils/
+│       └── image_helper.py  # ResNet50 + FAISS core
+├── client/               # Frontend Vue.js (source)
+│   └── src/
+│       ├── views/        #   Halaman: POS, item-list, item-form, search
+│       └── components/   #   CameraCapture (1, 2, 3 versi)
+├── webapp/               # Frontend build production
+├── migrations/           # Alembic database migrations
+├── db_script/
+│   └── rainshop_schema.sql  # Schema lengkap (single file)
+├── rainshop.bat          # One-click launcher
+└── build-client.bat      # Build frontend → webapp/
 ```
 
 ---
 
-## Update Dependensi Python
-
-Jika menginstall library baru dengan `pip install`, update `requirements.txt`:
+## 🔄 Database Migration (Alembic)
 
 ```powershell
-pip freeze > requirements.txt
+alembic current                                          # versi DB saat ini
+alembic revision --autogenerate -m "tambah_kolom_xyz"   # buat migrasi baru
+alembic upgrade head                                     # terapkan ke DB
+alembic downgrade -1                                     # rollback satu versi
 ```
+
+---
+
+## 🤝 Kontribusi & Kontak
+
+Proyek ini dikembangkan untuk toko **Rain Shop** — toko pernak-pernik di Bojong Gede, Bogor.
+
+Tertarik berdiskusi tentang proyek ini?  
+📧 [alaric2001ra@gmail.com](mailto:alaric2001ra@gmail.com)  
+🐙 [github.com/alaric2001](https://github.com/alaric2001)
