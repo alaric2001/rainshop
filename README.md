@@ -143,17 +143,39 @@ npm run build        # build lokal → output ke ../webapp/
 
 Frontend di-host di GitHub Pages. Backend tetap di laptop, di-expose via **ngrok static domain** sehingga URL tidak berubah.
 
+> ⚠️ **Penting:** Commit ke branch `main` **tidak otomatis** men-deploy ke GitHub Pages.
+> Deploy harus dijalankan **secara terpisah** dengan `npm run deploy`.
+
+### Dua branch yang digunakan
+
+| Branch | Isi | Diupdate dengan |
+|--------|-----|-----------------|
+| `main` | Source code (`.vue`, `.py`, dll.) | `git push` |
+| `gh-pages` | Build production (HTML/CSS/JS) | `npm run deploy` |
+
+### Alur kerja setiap update tampilan
+
 ```powershell
-# Setup ngrok (hanya sekali)
-ngrok config add-authtoken <TOKEN_DARI_DASHBOARD_NGROK>
+# 1. Commit & push source code seperti biasa
+git add .
+git commit -m "deskripsi perubahan"
+git push
 
-# Isi URL ngrok ke konfigurasi production
-# Edit client/.env.production:
-# VUE_APP_BASE_API=https://<ngrok-domain>.ngrok-free.dev
-
-# Deploy frontend ke GitHub Pages
+# 2. Deploy build ke GitHub Pages (wajib dijalankan terpisah)
 cd client
 npm run deploy
+```
+
+### Setup pertama kali (hanya sekali)
+
+```powershell
+# Daftarkan ngrok authtoken
+ngrok config add-authtoken <TOKEN_DARI_DASHBOARD_NGROK>
+
+# Isi ngrok domain ke client/.env.ghpages
+# (salin dari client/.env.production.example)
+# VUE_APP_BASE_API=https://<ngrok-domain>.ngrok-free.dev
+# VUE_APP_PUBLIC_PATH=/rainshop/
 ```
 
 ---
