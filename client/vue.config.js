@@ -1,6 +1,8 @@
 // vue.config.js
+// publicPath diisi dari env:
+//   - build lokal (webapp/)  : '' (root)
+//   - deploy GitHub Pages    : '/rainshop/'
 module.exports = {
-    // GitHub Pages: /rainshop/  |  Lokal: '' (root)
-    publicPath: process.env.NODE_ENV === 'production' ? '/rainshop/' : '',
+    publicPath: process.env.VUE_APP_PUBLIC_PATH || '',
     outputDir: 'dist'
 }

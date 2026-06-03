@@ -19,6 +19,7 @@ app/.env
 client/.env.local
 client/.env.*.local
 client/.env.production
+client/.env.ghpages
 
 # ── SSL Certificates ─────────────────────────────────────────
 *.pem

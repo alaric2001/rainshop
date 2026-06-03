@@ -26,11 +26,10 @@ Vue.use(VueAxios, axios);
 //     options: { path: '/socket.io' }
 // }));
 
-// Production (GitHub Pages): pakai VUE_APP_BASE_API dari .env.production (ngrok URL)
-// Development / LAN: ikut hostname browser secara dinamis
-axios.defaults.baseURL = process.env.NODE_ENV === 'production'
-    ? process.env.VUE_APP_BASE_API
-    : `${window.location.protocol}//${window.location.hostname}:8000`;
+// GitHub Pages (mode ghpages): VUE_APP_BASE_API diisi ngrok URL dari .env.ghpages
+// Lokal / LAN              : VUE_APP_BASE_API kosong → pakai hostname browser dinamis
+axios.defaults.baseURL = process.env.VUE_APP_BASE_API
+    || `${window.location.protocol}//${window.location.hostname}:8000`;
 axios.defaults.headers['Content-type'] = 'application/json';
 
 global.Vue = Vue;

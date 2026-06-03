@@ -7,7 +7,8 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint ",
-    "deploy": "vue-cli-service build && gh-pages -d dist -r https://github.com/alaric2001/rainshop.git"
+    "build:gh": "vue-cli-service build --mode ghpages",
+    "deploy": "vue-cli-service build --mode ghpages && gh-pages -d dist -r https://github.com/alaric2001/rainshop.git"
   },
   "dependencies": {
     "@coreui/coreui-pro": "^2.0.6",
