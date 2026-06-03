@@ -522,6 +522,7 @@ export default {
       this.showZoomGambar = true;
     },
     async searchItem() {
+      this.$store.commit('showLoading', 'AI sedang memeriksa duplikat...');
       try {
         const list = await items.imageSearch({ image: this.capturedImage });
         list.forEach(el => {
@@ -532,6 +533,8 @@ export default {
       } catch (error) {
         console.error(error);
         toastr.error("Gagal mencari item!");
+      } finally {
+        this.$store.commit('hideLoading');
       }
     },
     async rowEditGambar(record) {
@@ -560,19 +563,23 @@ export default {
       this.modeCaptureCamera = true;
     },
     async submitEdit() {
+      this.$store.commit('showLoading', 'Menyimpan data barang...');
       try {
         await items.update({ ...this.frmdata });
         toastr.success("Data barang berhasil disimpan!");
       } catch (error) {
         toastr.error(error.message || "Gagal menyimpan!", 'ERROR', 10000);
+      } finally {
+        this.$store.commit('hideLoading');
       }
     },
     async submitEditGambar() {
+      if (!this.capturedImage) {
+        toastr.error("Ambil foto dulu sebelum simpan", 'ERROR', 10000);
+        return;
+      }
+      this.$store.commit('showLoading', 'Mengunggah foto...');
       try {
-        if (!this.capturedImage) {
-          toastr.error("Ambil foto dulu sebelum simpan", 'ERROR', 10000);
-          return;
-        }
         const editedImage = this.images[this.editImageIdx];
         const frm = { image: this.capturedImage };
         if (editedImage.image_id) {
@@ -588,6 +595,8 @@ export default {
         this.modeCaptureCamera = false;
       } catch (error) {
         toastr.error(error.message || "Gagal menyimpan foto!", 'ERROR', 10000);
+      } finally {
+        this.$store.commit('hideLoading');
       }
     },
     closeEditGambar() { this.showEditGambar = false; },
@@ -601,6 +610,7 @@ export default {
         toastr.error('Minimal ambil satu foto barang', 'ERROR', 10000);
         return;
       }
+      this.$store.commit('showLoading', 'Menyimpan barang & membangun index AI...');
       try {
         const frm = { ...this.model, image: this.capturedImage, image2: this.capturedImage2, image3: this.capturedImage3 };
         await items.insert(frm);
@@ -609,6 +619,8 @@ export default {
       } catch (error) {
         const msg = error.message || error.sqlMessage || JSON.stringify(error);
         toastr.error(msg, 'ERROR', 10000);
+      } finally {
+        this.$store.commit('hideLoading');
       }
     },
     resetForm() {

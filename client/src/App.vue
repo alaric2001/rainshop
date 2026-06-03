@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <router-view></router-view>
+    <GlobalLoader />
     <nav class="bottom-nav">
       <router-link to="/item-input" class="nav-item" active-class="active">
         <i class="fa fa-plus-circle"></i>
@@ -93,7 +94,10 @@
 </style>
 
 <script>
+import GlobalLoader from './components/GlobalLoader.vue';
+
 export default {
+  components: { GlobalLoader },
   data() {
     return { navItems: [] };
   },

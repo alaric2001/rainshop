@@ -149,7 +149,7 @@
             <b-button variant="primary" size="lg" class="btn-print" @click="saveOrder()">
               <i class="fa fa-print"></i> Print Struk
             </b-button>
-            <b-button variant="outline-secondary" class="btn-clear" @click="clearForm()">
+            <b-button variant="outline-secondary" class="btn-clear" @click="confirmClear()">
               <i class="fa fa-refresh"></i> Kosongkan
             </b-button>
           </div>
@@ -160,6 +160,23 @@
     <!-- Modal Kamera -->
     <b-modal v-model="showWebcam" title="Cari Barang dengan Kamera" size="lg" :centered="true" hide-footer>
       <CameraCapture @image-captured="searchItem" class="mb-2"/>
+    </b-modal>
+
+    <!-- Modal Konfirmasi Kosongkan Keranjang -->
+    <b-modal
+      v-model="showConfirmClear"
+      title="Kosongkan Keranjang?"
+      :centered="true"
+      ok-variant="danger"
+      ok-title="Ya, Kosongkan"
+      cancel-title="Batal"
+      @ok="clearForm"
+    >
+      <div class="text-center py-2">
+        <i class="fa fa-exclamation-triangle fa-2x text-warning mb-3" style="display:block;"></i>
+        <p class="mb-1">Semua item di keranjang akan dihapus.</p>
+        <p class="text-muted small mb-0">Tindakan ini tidak bisa dibatalkan.</p>
+      </div>
     </b-modal>
 
     <!-- Modal Zoom Gambar -->
@@ -594,6 +611,7 @@ export default {
       modeViewOnly: false,
       zoomImage: null,
       showZoomGambar: false,
+      showConfirmClear: false,
     };
   },
   created() {
@@ -610,6 +628,7 @@ export default {
       this.isDesktop = window.innerWidth >= 768;
     },
     async searchItem(imageData) {
+      this.$store.commit('showLoading', 'AI sedang mengenali barang...');
       try {
         const list = await items.imageSearch({ image: imageData });
         list.forEach(el => {
@@ -622,15 +641,22 @@ export default {
       } catch (error) {
         console.error(error);
         toastr.error("Gagal mencari item!");
+      } finally {
+        this.$store.commit('hideLoading');
       }
     },
     async getItems() {
-      const list = await items.list(this.tblData);
-      list.forEach(el => {
-        el.image = '';
-        items.imageItem(el.image_id).then(img => { el.image = img; });
-      });
-      this.itemList = list;
+      this.$store.commit('showLoading', 'Mencari barang...');
+      try {
+        const list = await items.list(this.tblData);
+        list.forEach(el => {
+          el.image = '';
+          items.imageItem(el.image_id).then(img => { el.image = img; });
+        });
+        this.itemList = list;
+      } finally {
+        this.$store.commit('hideLoading');
+      }
     },
     clickItemDibeli(menu) {
       this.selectedItem = {};
@@ -670,6 +696,7 @@ export default {
       this.$forceUpdate();
     },
     async saveOrder() {
+      this.$store.commit('showLoading', 'Menyimpan transaksi...');
       try {
         this.hitungTotal();
         const data = {};
@@ -699,11 +726,17 @@ export default {
         console.error(error);
         const msg = error.message || error.sqlMessage || JSON.stringify(error);
         toastr.error(msg, 'ERROR', 10000);
+      } finally {
+        this.$store.commit('hideLoading');
       }
     },
     openZoomImage(gambar) {
       this.zoomImage = gambar;
       this.showZoomGambar = true;
+    },
+    confirmClear() {
+      if (this.lineorder.length === 0) return; // keranjang sudah kosong, tidak perlu konfirmasi
+      this.showConfirmClear = true;
     },
     clearForm() {
       for (const key in this.frmdata) this.frmdata[key] = '';

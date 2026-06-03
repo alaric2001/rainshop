@@ -414,11 +414,10 @@ export default {
       this.capturedImage3=null
     },
     data: async function() {
+      this.$store.commit('showLoading', 'Memuat daftar barang...');
       try {
         this.tblData.sortDir = this.tblData.sortDesc ? "desc" : "asc";
-        this.lkuLoading = true;
         let list = await items.list(this.tblData);
-        this.lkuLoading = false;
         this.tblDataItems = list;
         // return list;  
       } catch (error) {
@@ -431,9 +430,10 @@ export default {
             toastr.error(error.message, 'ERROR MESSAGE', 10000);
           } else {
             toastr.error(JSON.stringify(error), 'ERROR MESSAGE', 10000);
-          }        
+          }
+      } finally {
+        this.$store.commit('hideLoading');
       }
-
     },
     search() {
       this.tblData.page=1;
