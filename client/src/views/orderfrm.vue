@@ -20,7 +20,7 @@
 
         <!-- Search Bar -->
         <div class="panel-header">
-          <div class="panel-title">Cari Item Barang</div>
+          <div class="panel-title">Barang yang Dibeli</div>
           <div class="search-controls">
             <div class="search-row">
               <b-button variant="success" class="btn-camera" @click="showWebcam=true">

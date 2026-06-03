@@ -31,6 +31,8 @@ Vue.use(VueAxios, axios);
 axios.defaults.baseURL = process.env.VUE_APP_BASE_API
     || `${window.location.protocol}//${window.location.hostname}:8000`;
 axios.defaults.headers['Content-type'] = 'application/json';
+// Bypass halaman interstitial ngrok agar request langsung ke backend
+axios.defaults.headers['ngrok-skip-browser-warning'] = 'true';
 
 global.Vue = Vue;
 
