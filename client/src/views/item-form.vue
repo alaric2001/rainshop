@@ -140,7 +140,7 @@
             <b-button variant="success" class="btn-save" @click="submitItem">
               <i class="fa fa-save"></i> Simpan Barang
             </b-button>
-            <b-button variant="outline-secondary" class="btn-reset" @click="resetForm">
+            <b-button variant="outline-secondary" class="btn-reset" @click="confirmReset">
               <i class="fa fa-refresh"></i> Reset
             </b-button>
           </div>
@@ -148,6 +148,23 @@
       </div>
 
     </div>
+
+    <!-- Modal Konfirmasi Reset -->
+    <b-modal
+      v-model="showConfirmReset"
+      title="Reset Form?"
+      :centered="true"
+      ok-variant="danger"
+      ok-title="Ya, Reset"
+      cancel-title="Batal"
+      @ok="resetForm"
+    >
+      <div class="text-center py-2">
+        <i class="fa fa-exclamation-triangle fa-2x text-warning mb-3" style="display:block;"></i>
+        <p class="mb-1">Semua foto dan data yang sudah diisi akan dihapus.</p>
+        <p class="text-muted small mb-0">Tindakan ini tidak bisa dibatalkan.</p>
+      </div>
+    </b-modal>
 
     <!-- Modal zoom gambar -->
     <b-modal v-model="showZoomGambar" title="Zoom Gambar" size="md" :centered="true" ok-only>
@@ -505,6 +522,7 @@ export default {
       images: [],
       zoomImage: null,
       showZoomGambar: false,
+      showConfirmReset: false,
       showEditGambar: false,
       modeCaptureCamera: false,
       editImageIdx: null,
@@ -622,6 +640,13 @@ export default {
       } finally {
         this.$store.commit('hideLoading');
       }
+    },
+    confirmReset() {
+      // Hanya tanya konfirmasi jika ada data yang akan hilang
+      const adaData = this.model.item_name || this.model.item_price
+        || this.capturedImage || this.capturedImage2 || this.capturedImage3;
+      if (!adaData) return; // form sudah kosong, langsung lewat
+      this.showConfirmReset = true;
     },
     resetForm() {
       this.model = { item_name: '', item_price: 0, item_stock: 1 };

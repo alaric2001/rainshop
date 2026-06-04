@@ -27,9 +27,9 @@ Vue.use(VueAxios, axios);
 // }));
 
 // GitHub Pages (mode ghpages): VUE_APP_BASE_API diisi ngrok URL dari .env.ghpages
-// Lokal / LAN              : selalu HTTPS karena backend berjalan dengan SSL
+// Lokal                    : ikut protokol browser (http untuk lokal, https untuk LAN)
 axios.defaults.baseURL = process.env.VUE_APP_BASE_API
-    || `https://${window.location.hostname}:8000`;
+    || `${window.location.protocol}//${window.location.hostname}:8000`;
 axios.defaults.headers['Content-type'] = 'application/json';
 // Bypass halaman interstitial ngrok agar request langsung ke backend
 axios.defaults.headers['ngrok-skip-browser-warning'] = 'true';
